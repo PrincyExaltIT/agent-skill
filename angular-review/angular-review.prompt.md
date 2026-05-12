@@ -20,10 +20,10 @@ The full orchestration lives in **`ORCHESTRATION.md`** alongside this file — a
 
 ## Notes specific to GitHub Copilot
 
-- No parallel sub-agent calls — review reference files sequentially.
 - Tool whitelist in frontmatter must include shell + file-read + file-write. Adjust to your Copilot tier's available tools if some aren't surfaced.
 - For agent-mode invocation, ask the user to run `/angular-review` in Copilot Chat (with this file installed under `.github/prompts/angular-review.prompt.md`).
 - Project-wide always-on instructions can go in `.github/copilot-instructions.md` if you want the skill rules to apply implicitly without an explicit `/angular-review` invocation.
+- Sub-agent parallelism is supported in agent mode since Jan 2026 (and via `/fleet` in Copilot CLI). If your tier doesn't expose `runSubagent`, fall back to sequential review — same findings, slower wall-clock.
 
 For installation, MCP registration, and the rationale behind each step, see the repo `README.md`.
 

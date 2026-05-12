@@ -116,16 +116,34 @@ $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid())
 try {
   Info "Fetching ${cloneUrl}@${Ref}..."
   # --quiet suppresses git's "Cloning into..." stderr, which PowerShell otherwise treats as an error.
-  # Wrap in & with $ErrorActionPreference=Continue locally so a non-zero exit doesn't throw before we check it.
+  # Wrap in $ErrorActionPreference=Continue locally so a non-zero exit doesn't throw before we check it.
   $prevEAP = $ErrorActionPreference
   $ErrorActionPreference = "Continue"
+
+  # Fast path: shallow clone with --branch (works for branches and tags).
   & git clone --depth 1 --quiet --branch $Ref $cloneUrl $tmp 2>$null
   $cloneExit = $LASTEXITCODE
-  $ErrorActionPreference = $prevEAP
+
+  # Fallback: when $Ref is a commit SHA or any ref --branch can't resolve, do a full clone + checkout.
   if ($cloneExit -ne 0) {
-    Err "git clone failed (url: $cloneUrl, ref: $Ref, exit: $cloneExit)."
-    exit 1
+    if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp }
+    & git clone --quiet $cloneUrl $tmp 2>$null
+    $cloneExit = $LASTEXITCODE
+    if ($cloneExit -ne 0) {
+      $ErrorActionPreference = $prevEAP
+      Err "git clone failed (url: $cloneUrl, exit: $cloneExit)."
+      exit 1
+    }
+    & git -C $tmp checkout --quiet $Ref 2>$null
+    $checkoutExit = $LASTEXITCODE
+    if ($checkoutExit -ne 0) {
+      $ErrorActionPreference = $prevEAP
+      Err "git checkout failed (ref: $Ref). Branch/tag/commit not found in $cloneUrl."
+      exit 1
+    }
   }
+
+  $ErrorActionPreference = $prevEAP
   if (-not (Test-Path (Join-Path $tmp $Skill))) {
     Err "Skill '$Skill' not found in source."
     exit 1
@@ -140,13 +158,21 @@ finally {
 }
 
 # ── place the provider-specific prompt entry ───────────────────────────────
+# Each skill ships its provider entries under predictable names so the installer
+# is skill-agnostic: <skill>.prompt.md (Copilot) and <skill>.codex.md (Codex).
 if ($promptDest) {
+  $srcPrompt = switch ($Provider) {
+    "copilot" { Join-Path $dest "$Skill.prompt.md" }
+    "codex"   { Join-Path $dest "$Skill.codex.md" }
+  }
+  if (-not (Test-Path $srcPrompt)) {
+    Err "Skill '$Skill' is missing the expected $Provider entry file: $srcPrompt"
+    Err "Expected naming convention: <skill>.prompt.md for Copilot, <skill>.codex.md for Codex."
+    exit 1
+  }
   $parent = Split-Path $promptDest -Parent
   if ($parent -and -not (Test-Path $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
-  switch ($Provider) {
-    "copilot" { Copy-Item (Join-Path $dest "angular-review.prompt.md") $promptDest }
-    "codex"   { Copy-Item (Join-Path $dest "codex-prompt.md") $promptDest }
-  }
+  Copy-Item $srcPrompt $promptDest
   Ok "Prompt entry placed at $promptDest"
 }
 
