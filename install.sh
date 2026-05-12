@@ -70,6 +70,16 @@ if [[ ! "$SKILL" =~ ^[A-Za-z0-9._-]+$ ]] || [[ "$SKILL" == .* ]] || [[ "$SKILL" 
   exit 2
 fi
 
+# $REF is passed to `git checkout` (and as the value of `git clone --branch`). A leading
+# '-' would let `git checkout` interpret the ref as a flag, enabling option injection.
+# Note: we DON'T add `--` before $REF in `git checkout` because there `--` separates
+# pathspecs (i.e. `git checkout -- foo` restores file 'foo', NOT switch to ref 'foo');
+# validating the ref shape is the correct fix for this surface.
+if [[ "$REF" == -* ]]; then
+  err "Invalid --ref value: '$REF'. Refs starting with '-' are not allowed."
+  exit 2
+fi
+
 # ── auto-detect provider ───────────────────────────────────────────────────
 detect_provider() {
   local hits=()
@@ -148,15 +158,18 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 info "Fetching $CLONE_URL@$REF…"
 # Fast path: shallow clone with --branch works for branches and tags.
-# Fallback: when $REF is a commit SHA (or any ref --branch can't resolve), do a full clone + checkout.
-if ! git clone --depth 1 --quiet --branch "$REF" "$CLONE_URL" "$TMP" 2>/dev/null; then
+# Fallback: when $REF is a commit SHA (or any ref --branch can't resolve), do a full
+# clone + checkout. The `--` separator before $CLONE_URL forces git to treat it as
+# the repository argument, not a flag (defence in depth).
+if ! git clone --depth 1 --quiet --branch "$REF" -- "$CLONE_URL" "$TMP" 2>/dev/null; then
   rm -rf "$TMP"
   TMP=$(mktemp -d)
   trap 'rm -rf "$TMP"' EXIT
-  if ! git clone --quiet "$CLONE_URL" "$TMP" 2>/dev/null; then
+  if ! git clone --quiet -- "$CLONE_URL" "$TMP" 2>/dev/null; then
     err "git clone failed (url: $CLONE_URL)."
     exit 1
   fi
+  # $REF is already validated above to not start with '-', so `git checkout $REF` is safe.
   if ! git -C "$TMP" checkout --quiet "$REF" 2>/dev/null; then
     err "git checkout failed (ref: $REF). Branch/tag/commit not found in $CLONE_URL."
     exit 1
