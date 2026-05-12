@@ -197,9 +197,12 @@ List the checks performed and their result (✅ / ❌). A failure → **escalate
 
 ### 6.4 Versioned Playwright suite (if present)
 
-If the project has a Playwright suite (`tests/**/*.spec.ts`, `e2e/**/*.spec.ts`, or `playwright.config.*`), run it via `npx playwright test --reporter=list,html` (in background). Map failures to findings (prefix `R-RUNTIME`, or `R-PROJ` if the suite checks a project constraint).
+If the project has a Playwright suite (`tests/**/*.spec.ts`, `e2e/**/*.spec.ts`, or `playwright.config.*`), run it **only when Playwright is already installed locally** — never let it download. Concretely:
 
-The HTML report under `playwright-report/` can be served with `npx playwright show-report` — mention this command in the report's « Empirical validation » section.
+1. Verify locally installed: `[ -d node_modules/@playwright/test ]` (or equivalent in the project's package manager). If absent → skip and write « Empirical validation not executed: @playwright/test not installed locally » in the report.
+2. Run: `npx --no-install playwright test --reporter=list,html` (the `--no-install` flag makes npx fail rather than fetch from the npm registry, preserving the « no-network » guardrail).
+
+Map failures to findings (prefix `R-RUNTIME`, or `R-PROJ` if the suite checks a project constraint). The HTML report under `playwright-report/` can be served with `npx --no-install playwright show-report` — mention this command in the report's « Empirical validation » section.
 
 ### 6.5 Playwright guardrails
 

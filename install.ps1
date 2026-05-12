@@ -51,6 +51,13 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
   exit 1
 }
 
+# Defence in depth: $Skill is interpolated into destination paths and the git-fetch
+# subpath. Reject anything that could escape the install root.
+if ($Skill -notmatch '^[A-Za-z0-9._-]+$' -or $Skill.StartsWith('.') -or $Skill.StartsWith('-')) {
+  Err "Invalid -Skill value: '$Skill'. Allowed: [A-Za-z0-9._-]+, not starting with '.' or '-'."
+  exit 2
+}
+
 # ── auto-detect provider ───────────────────────────────────────────────────
 function Detect-Provider {
   $hits = @()
@@ -172,6 +179,12 @@ if ($promptDest) {
   }
   $parent = Split-Path $promptDest -Parent
   if ($parent -and -not (Test-Path $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
+  # Back up any existing prompt so customisations aren't silently lost (symmetric with bundle backup).
+  if (Test-Path $promptDest) {
+    if (Test-Path "$promptDest.bak") { Remove-Item -Force "$promptDest.bak" }
+    Move-Item $promptDest "$promptDest.bak"
+    Warn "Existing prompt backed up to $promptDest.bak"
+  }
   Copy-Item $srcPrompt $promptDest
   Ok "Prompt entry placed at $promptDest"
 }
