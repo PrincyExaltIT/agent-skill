@@ -62,6 +62,14 @@ err()   { echo "${c_red}✗${c_reset} $*" >&2; }
 # ── sanity ─────────────────────────────────────────────────────────────────
 command -v git >/dev/null 2>&1 || { err "git is required but not found in PATH."; exit 1; }
 
+# Defence in depth: $SKILL is interpolated into destination paths and the git-fetch
+# subpath. Reject anything that could escape the install root or break path
+# construction (path separators, '..', null bytes, leading dashes).
+if [[ ! "$SKILL" =~ ^[A-Za-z0-9._-]+$ ]] || [[ "$SKILL" == .* ]] || [[ "$SKILL" == -* ]]; then
+  err "Invalid --skill value: '$SKILL'. Allowed: [A-Za-z0-9._-]+, not starting with '.' or '-'."
+  exit 2
+fi
+
 # ── auto-detect provider ───────────────────────────────────────────────────
 detect_provider() {
   local hits=()
@@ -105,9 +113,17 @@ if [[ -e "$DEST" ]]; then
     rm -rf "$DEST.bak"
     mv "$DEST" "$DEST.bak"
   else
-    # When piped (curl|bash), stdin is the script — read from the controlling TTY instead.
-    if [[ -t 0 ]]; then INPUT_TTY=0; else INPUT_TTY="/dev/tty"; fi
-    read -r -p "$DEST already exists. Overwrite? [y/N] " ans <"$INPUT_TTY" || ans=""
+    # When piped (curl|bash) stdin is the script; read from the controlling TTY instead.
+    # When stdin IS a TTY (running locally), read from the inherited stdin directly.
+    if [[ -t 0 ]]; then
+      read -r -p "$DEST already exists. Overwrite? [y/N] " ans || ans=""
+    elif [[ -r /dev/tty ]]; then
+      read -r -p "$DEST already exists. Overwrite? [y/N] " ans </dev/tty || ans=""
+    else
+      # Non-interactive with no TTY (CI piped) — refuse to clobber without --yes.
+      err "$DEST already exists and no TTY is available for confirmation. Re-run with --yes to overwrite."
+      exit 1
+    fi
     case "$ans" in
       y|Y|yes|YES)
         rm -rf "$DEST.bak"
@@ -166,6 +182,12 @@ if [[ -n "$PROMPT_DEST" ]]; then
     exit 1
   fi
   mkdir -p "$(dirname "$PROMPT_DEST")"
+  # Back up any existing prompt the same way we back up the bundle, so customisations aren't silently lost.
+  if [[ -e "$PROMPT_DEST" ]]; then
+    rm -f "$PROMPT_DEST.bak"
+    mv "$PROMPT_DEST" "$PROMPT_DEST.bak"
+    warn "Existing prompt backed up to $PROMPT_DEST.bak"
+  fi
   cp "$SRC_PROMPT" "$PROMPT_DEST"
   ok "Prompt entry placed at $PROMPT_DEST"
 fi

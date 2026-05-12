@@ -3,8 +3,9 @@
 *.sh           text eol=lf
 *.bash         text eol=lf
 
-# Treat PowerShell scripts as text but allow CRLF on Windows checkouts
-*.ps1          text
+# install.ps1 has a `#!/usr/bin/env pwsh` shebang and pwsh exists on Linux/macOS too.
+# CRLF breaks shebanged scripts on Unix, so normalise PowerShell scripts to LF as well.
+*.ps1          text eol=lf
 
 # Markdown and config files: normalize to LF
 *.md           text eol=lf
