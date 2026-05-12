@@ -1,0 +1,14 @@
+# Force LF line endings for shell scripts so they're executable on Linux/macOS
+# regardless of the contributor's OS.
+*.sh           text eol=lf
+*.bash         text eol=lf
+
+# Treat PowerShell scripts as text but allow CRLF on Windows checkouts
+*.ps1          text
+
+# Markdown and config files: normalize to LF
+*.md           text eol=lf
+*.json         text eol=lf
+*.toml         text eol=lf
+*.yml          text eol=lf
+*.yaml         text eol=lf
