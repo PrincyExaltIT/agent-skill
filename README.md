@@ -97,7 +97,7 @@ The agent will:
 
 Each skill ships with:
 - One **provider-agnostic** orchestration document (`ORCHESTRATION.md`) — single source of truth.
-- A thin **entry-point file per provider** (`SKILL.md` / `*.prompt.md` / `codex-prompt.md`).
+- A thin **entry-point file per provider** (`SKILL.md` / `<skill>.prompt.md` / `<skill>.codex.md`).
 - **Shared assets** (rules, templates, examples) used by all three.
 
 ---
@@ -224,7 +224,7 @@ cp .github/agent-skills/angular-review/angular-review.prompt.md .github/prompts/
 mkdir -p .codex/prompts .codex/agent-skills
 git clone --depth 1 https://github.com/PrincyExaltIT/agent-skill.git /tmp/agent-skill
 cp -r /tmp/agent-skill/angular-review .codex/agent-skills/
-cp .codex/agent-skills/angular-review/codex-prompt.md .codex/prompts/angular-review.md
+cp .codex/agent-skills/angular-review/angular-review.codex.md .codex/prompts/angular-review.md
 ```
 
 </details>
@@ -258,7 +258,7 @@ agent-skill/
     ├── ORCHESTRATION.md                         ← single source of truth (provider-agnostic)
     ├── SKILL.md                                 ← Claude Code entry (frontmatter)
     ├── angular-review.prompt.md                 ← GitHub Copilot entry (frontmatter)
-    ├── codex-prompt.md                          ← OpenAI Codex entry (plain md)
+    ├── angular-review.codex.md                  ← OpenAI Codex entry (plain md)
     ├── references/
     │   ├── SECURITY_REVIEW.md                   ← R-SEC
     │   ├── ARCHITECTURE_CLEAN_CODE_REVIEW.md    ← R-ARCH

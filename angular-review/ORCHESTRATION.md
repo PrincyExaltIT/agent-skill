@@ -27,7 +27,7 @@ This document is written for any agent runtime. Translate the generic steps to y
 <skill-root>/
 ├── SKILL.md                              ← Claude Code entry (frontmatter)
 ├── angular-review.prompt.md              ← GitHub Copilot prompt entry
-├── codex-prompt.md                       ← OpenAI Codex prompt entry
+├── angular-review.codex.md               ← OpenAI Codex prompt entry
 ├── ORCHESTRATION.md                      ← this file (the actual logic)
 ├── references/
 │   ├── SECURITY_REVIEW.md                ← R-SEC (23 rules)
@@ -206,7 +206,7 @@ The HTML report under `playwright-report/` can be served with `npx playwright sh
 - Don't modify `src/` even if a test fails — report via a finding, let the author fix it.
 - **Kill the dev server** at the end of Step 6.
 - If Playwright or the dev server fails to start → **don't block the verdict**; record « Empirical validation not executed: <reason> » in the report.
-- Add `playwright-report/`, `test-results/`, `playwright/.cache/` to the project's `.gitignore`.
+- In the « Empirical validation » section of the report, **recommend** to the user that they add `playwright-report/`, `test-results/`, `playwright/.cache/` to their project's `.gitignore`. The orchestrator MUST NOT modify `.gitignore` itself (cf. read-only guardrail in « Global guardrails » below).
 
 ## Global guardrails
 

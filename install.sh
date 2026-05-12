@@ -39,13 +39,14 @@ EOF
 }
 
 # ── parse args ─────────────────────────────────────────────────────────────
+need_val() { [[ $# -ge 2 ]] || { echo "Flag $1 requires a value." >&2; exit 2; }; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --skill)    SKILL="$2"; shift 2 ;;
-    --provider) PROVIDER="$2"; shift 2 ;;
-    --scope)    SCOPE="$2"; shift 2 ;;
-    --with-mcp) WITH_MCP="$2"; shift 2 ;;
-    --ref)      REF="$2"; shift 2 ;;
+    --skill)    need_val "$@"; SKILL="$2"; shift 2 ;;
+    --provider) need_val "$@"; PROVIDER="$2"; shift 2 ;;
+    --scope)    need_val "$@"; SCOPE="$2"; shift 2 ;;
+    --with-mcp) need_val "$@"; WITH_MCP="$2"; shift 2 ;;
+    --ref)      need_val "$@"; REF="$2"; shift 2 ;;
     --yes|-y)   ASSUME_YES=1; shift ;;
     --help|-h)  print_help; exit 0 ;;
     *) echo "Unknown flag: $1" >&2; echo "Run with --help for usage." >&2; exit 2 ;;
@@ -130,8 +131,21 @@ fi
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 info "Fetching $CLONE_URL@$REF…"
-git clone --depth 1 --branch "$REF" "$CLONE_URL" "$TMP" >/dev/null 2>&1 \
-  || { err "git clone failed (url: $CLONE_URL, ref: $REF)."; exit 1; }
+# Fast path: shallow clone with --branch works for branches and tags.
+# Fallback: when $REF is a commit SHA (or any ref --branch can't resolve), do a full clone + checkout.
+if ! git clone --depth 1 --quiet --branch "$REF" "$CLONE_URL" "$TMP" 2>/dev/null; then
+  rm -rf "$TMP"
+  TMP=$(mktemp -d)
+  trap 'rm -rf "$TMP"' EXIT
+  if ! git clone --quiet "$CLONE_URL" "$TMP" 2>/dev/null; then
+    err "git clone failed (url: $CLONE_URL)."
+    exit 1
+  fi
+  if ! git -C "$TMP" checkout --quiet "$REF" 2>/dev/null; then
+    err "git checkout failed (ref: $REF). Branch/tag/commit not found in $CLONE_URL."
+    exit 1
+  fi
+fi
 [[ -d "$TMP/$SKILL" ]] || { err "Skill '$SKILL' not found in source."; exit 1; }
 
 mkdir -p "$(dirname "$DEST")"
@@ -139,12 +153,20 @@ cp -r "$TMP/$SKILL" "$DEST"
 ok "Bundle installed at $DEST"
 
 # ── place the provider-specific prompt entry ───────────────────────────────
+# Each skill ships its provider entries under predictable names so the installer
+# is skill-agnostic: <skill>.prompt.md (Copilot) and <skill>.codex.md (Codex).
 if [[ -n "$PROMPT_DEST" ]]; then
-  mkdir -p "$(dirname "$PROMPT_DEST")"
   case "$PROVIDER" in
-    copilot) cp "$DEST/angular-review.prompt.md" "$PROMPT_DEST" ;;
-    codex)   cp "$DEST/codex-prompt.md" "$PROMPT_DEST" ;;
+    copilot) SRC_PROMPT="$DEST/${SKILL}.prompt.md" ;;
+    codex)   SRC_PROMPT="$DEST/${SKILL}.codex.md" ;;
   esac
+  if [[ ! -f "$SRC_PROMPT" ]]; then
+    err "Skill '$SKILL' is missing the expected $PROVIDER entry file: $SRC_PROMPT"
+    err "Expected naming convention: \${SKILL}.prompt.md for Copilot, \${SKILL}.codex.md for Codex."
+    exit 1
+  fi
+  mkdir -p "$(dirname "$PROMPT_DEST")"
+  cp "$SRC_PROMPT" "$PROMPT_DEST"
   ok "Prompt entry placed at $PROMPT_DEST"
 fi
 
