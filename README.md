@@ -122,7 +122,7 @@ Reading the one-liner with a healthy dose of skepticism is encouraged. Here's ex
 2. **Auto-detects** the provider from project markers (override with `--provider`).
 3. **Computes the destination path** from `provider × scope`.
 4. **Backs up** any existing install to `<dest>.bak` (asks first; `--yes` to skip the prompt).
-5. **Shallow-clones** `https://github.com/PrincyExaltIT/agent-skill.git@<ref>` to a temp dir.
+5. **Shallow-clones** `https://github.com/PrincyExaltIT/agent-skill.git@<ref>` to a temp dir. If `<ref>` is a commit SHA (or any ref that `git clone --branch` can't resolve), the installer **falls back** to a full clone followed by `git checkout <ref>` — so branch, tag, and commit refs all work.
 6. **Copies** the requested skill folder to its destination.
 7. **Places the provider-specific prompt** at the slash-command location (`.github/prompts/` for Copilot, `.codex/prompts/` for Codex).
 8. _(If `--with-mcp playwright`)_ **Registers** the Playwright MCP server — via `claude mcp add` if available, otherwise by writing the right config file for your provider.
