@@ -58,6 +58,15 @@ if ($Skill -notmatch '^[A-Za-z0-9._-]+$' -or $Skill.StartsWith('.') -or $Skill.S
   exit 2
 }
 
+# $Ref is passed to `git checkout` (and as the value of `git clone --branch`). A leading
+# '-' would let `git checkout` interpret the ref as a flag, enabling option injection.
+# Note: we DON'T add `--` before $Ref in `git checkout` because there `--` separates
+# pathspecs; validating the ref shape is the correct fix for this surface.
+if ($Ref.StartsWith('-')) {
+  Err "Invalid -Ref value: '$Ref'. Refs starting with '-' are not allowed."
+  exit 2
+}
+
 # ── auto-detect provider ───────────────────────────────────────────────────
 function Detect-Provider {
   $hits = @()
@@ -128,19 +137,22 @@ try {
   $ErrorActionPreference = "Continue"
 
   # Fast path: shallow clone with --branch (works for branches and tags).
-  & git clone --depth 1 --quiet --branch $Ref $cloneUrl $tmp 2>$null
+  # The `--` separator before $cloneUrl forces git to treat it as the repository
+  # argument, not a flag (defence in depth).
+  & git clone --depth 1 --quiet --branch $Ref -- $cloneUrl $tmp 2>$null
   $cloneExit = $LASTEXITCODE
 
   # Fallback: when $Ref is a commit SHA or any ref --branch can't resolve, do a full clone + checkout.
   if ($cloneExit -ne 0) {
     if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp }
-    & git clone --quiet $cloneUrl $tmp 2>$null
+    & git clone --quiet -- $cloneUrl $tmp 2>$null
     $cloneExit = $LASTEXITCODE
     if ($cloneExit -ne 0) {
       $ErrorActionPreference = $prevEAP
       Err "git clone failed (url: $cloneUrl, exit: $cloneExit)."
       exit 1
     }
+    # $Ref is already validated above to not start with '-', so `git checkout $Ref` is safe.
     & git -C $tmp checkout --quiet $Ref 2>$null
     $checkoutExit = $LASTEXITCODE
     if ($checkoutExit -ne 0) {
