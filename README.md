@@ -20,6 +20,8 @@ irm https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/main/install.ps1
 
 That's it. In your AI agent, type `/angular-review` to use the skill.
 
+> Want the kata-specific variant (pre-filled with the R-KATA rules of the « Rendering Events » brief)? Append `--skill angular-review-kata-rendering-events` to the one-liner — see the [Available skills](#-available-skills) table below.
+
 ---
 
 ## ⚙️ Common flags
@@ -35,6 +37,9 @@ curl -fsSL .../install.sh | bash -s -- --scope global
 
 # Also register the Playwright MCP server (enables Step 6: empirical DOM validation)
 curl -fsSL .../install.sh | bash -s -- --with-mcp playwright
+
+# Install the kata-specific variant (pre-filled R-KATA rules for « Rendering Events »)
+curl -fsSL .../install.sh | bash -s -- --skill angular-review-kata-rendering-events
 
 # Combine
 curl -fsSL .../install.sh | bash -s -- --provider claude --scope global --with-mcp playwright
@@ -91,9 +96,12 @@ The agent will:
 
 ## 🧪 Available skills
 
-| Skill | What it does |
-|---|---|
-| [`angular-review`](./angular-review) | Multi-reviewer Angular code audit (security, architecture, performance, a11y/errors, optional project-compliance) using guidelines compiled from angular.dev. Optionally validates the rendered DOM via the Playwright MCP server. **Read-only** — produces a markdown report, never modifies code. |
+| Skill | Invoke with | What it does |
+|---|---|---|
+| [`angular-review`](./angular-review) | `/angular-review` | Multi-reviewer Angular code audit (security, architecture, performance, a11y/errors, optional project-compliance) using guidelines compiled from angular.dev. Ships with an **empty** `PROJECT_COMPLIANCE_REVIEW.md` template — fill it in to encode your project's R-PROJ constraints. Optionally validates the rendered DOM via the Playwright MCP server. **Read-only** — produces a markdown report, never modifies code. |
+| [`angular-review-kata-rendering-events`](./angular-review-kata-rendering-events) | `/angular-review-kata-rendering-events` | Variant of `angular-review` **pre-filled** with the 13 R-KATA rules of the « Rendering Events » kata (RFC2119 constraints from the kata brief: positionnement temps→pixels, chevauchement, responsivité, libs autorisées, …). Otherwise byte-for-byte identical to `angular-review`. Install with `--skill angular-review-kata-rendering-events`. |
+
+> ✏️ **Choosing between the two**: install `angular-review` if you have your own constraints to encode (or none at all). Install `angular-review-kata-rendering-events` if you're submitting the « Rendering Events » kata and want the conformity rules pre-loaded — no `PROJECT_COMPLIANCE_REVIEW.md` editing needed.
 
 Each skill ships with:
 - One **provider-agnostic** orchestration document (`ORCHESTRATION.md`) — single source of truth.
@@ -104,13 +112,15 @@ Each skill ships with:
 
 ## 🧰 Customise for your project (R-PROJ)
 
-The skill ships with an empty `references/PROJECT_COMPLIANCE_REVIEW.md` template. Fill it with the constraints specific to your project (kata, internal RFC, API contract, UX charter):
+The general `angular-review` skill ships with an **empty** `references/PROJECT_COMPLIANCE_REVIEW.md` template. Fill it with the constraints specific to your project (kata, internal RFC, API contract, UX charter):
 
 1. Edit `<install-path>/angular-review/references/PROJECT_COMPLIANCE_REVIEW.md`.
 2. Add at least one rule under « Règles à vérifier ». Use the template format provided in the file.
 3. _(Optional)_ Adjust the `applies_to` glob and `rule_prefix` in the frontmatter.
 
 The next invocation auto-detects your rules and runs an extra `project-compliance-reviewer` sub-agent emitting `R-PROJ-NNN` findings. A single R-PROJ BLOCKER ⇒ `REQUEST_CHANGES`.
+
+> 💡 **Looking for a concrete example?** The [`angular-review-kata-rendering-events`](./angular-review-kata-rendering-events) skill is exactly that: the general `angular-review` skill with a pre-filled `PROJECT_COMPLIANCE_REVIEW.md` encoding the 13 R-KATA rules of the « Rendering Events » kata. Read its `references/PROJECT_COMPLIANCE_REVIEW.md` to see how RFC2119 brief constraints translate into actionable reviewer rules with severity, flag patterns, and ✅/❌ examples.
 
 ---
 
@@ -134,14 +144,16 @@ The two scripts ([`install.sh`](./install.sh), [`install.ps1`](./install.ps1)) a
 
 ## 📂 Install paths reference
 
+Replace `<skill>` below with the skill name passed to `--skill` (`angular-review` by default, or `angular-review-kata-rendering-events` for the kata variant).
+
 | Provider | Scope | Bundle path | Slash-command prompt |
 |---|---|---|---|
-| Claude Code | project | `.claude/skills/angular-review/` | _(uses `SKILL.md` frontmatter)_ |
-| Claude Code | global | `~/.claude/skills/angular-review/` | _(uses `SKILL.md` frontmatter)_ |
-| GitHub Copilot | project | `.github/agent-skills/angular-review/` | `.github/prompts/angular-review.prompt.md` |
+| Claude Code | project | `.claude/skills/<skill>/` | _(uses `SKILL.md` frontmatter)_ |
+| Claude Code | global | `~/.claude/skills/<skill>/` | _(uses `SKILL.md` frontmatter)_ |
+| GitHub Copilot | project | `.github/agent-skills/<skill>/` | `.github/prompts/<skill>.prompt.md` |
 | GitHub Copilot | global | _(not supported by Copilot — use project scope)_ | — |
-| OpenAI Codex | project | `.codex/agent-skills/angular-review/` | `.codex/prompts/angular-review.md` |
-| OpenAI Codex | global | `~/.codex/agent-skills/angular-review/` | `~/.codex/prompts/angular-review.md` |
+| OpenAI Codex | project | `.codex/agent-skills/<skill>/` | `.codex/prompts/<skill>.md` |
+| OpenAI Codex | global | `~/.codex/agent-skills/<skill>/` | `~/.codex/prompts/<skill>.md` |
 
 ---
 
@@ -193,6 +205,8 @@ The orchestration auto-detects `playwright.config.*` and runs the suite as part 
 ## 🛠️ Manual install (fallback)
 
 If you can't run a script or prefer to inspect everything, do it by hand:
+
+Replace `angular-review` below with `angular-review-kata-rendering-events` if you want the kata-specific variant.
 
 <details>
 <summary><strong>Claude Code</strong></summary>
@@ -254,23 +268,36 @@ agent-skill/
 ├── LICENSE                                      ← MIT
 ├── install.sh                                   ← bash one-liner installer
 ├── install.ps1                                  ← PowerShell one-liner installer
-└── angular-review/
-    ├── ORCHESTRATION.md                         ← single source of truth (provider-agnostic)
-    ├── SKILL.md                                 ← Claude Code entry (frontmatter)
-    ├── angular-review.prompt.md                 ← GitHub Copilot entry (frontmatter)
-    ├── angular-review.codex.md                  ← OpenAI Codex entry (plain md)
+├── angular-review/                              ← general skill (R-PROJ template empty)
+│   ├── ORCHESTRATION.md                         ← single source of truth (provider-agnostic)
+│   ├── SKILL.md                                 ← Claude Code entry (frontmatter)
+│   ├── angular-review.prompt.md                 ← GitHub Copilot entry (frontmatter)
+│   ├── angular-review.codex.md                  ← OpenAI Codex entry (plain md)
+│   ├── references/
+│   │   ├── SECURITY_REVIEW.md                   ← R-SEC
+│   │   ├── ARCHITECTURE_CLEAN_CODE_REVIEW.md    ← R-ARCH
+│   │   ├── PERFORMANCE_REVIEW.md                ← R-PERF
+│   │   ├── A11Y_AND_ERROR_HANDLING_REVIEW.md    ← R-A11Y, R-ERR
+│   │   └── PROJECT_COMPLIANCE_REVIEW.md         ← R-PROJ (user-filled template, empty)
+│   ├── templates/
+│   │   └── REPORT.md                            ← final report template
+│   ├── reports/                                 ← generated reviews (gitignored)
+│   └── examples/
+│       ├── subagent-prompt.md
+│       └── subagent-output.json
+└── angular-review-kata-rendering-events/        ← kata variant (R-KATA pre-filled)
+    ├── ORCHESTRATION.md                         ← (identical to angular-review's)
+    ├── SKILL.md                                 ← Claude Code entry, name: angular-review-kata-rendering-events
+    ├── angular-review-kata-rendering-events.prompt.md  ← Copilot entry
+    ├── angular-review-kata-rendering-events.codex.md   ← Codex entry
     ├── references/
-    │   ├── SECURITY_REVIEW.md                   ← R-SEC
-    │   ├── ARCHITECTURE_CLEAN_CODE_REVIEW.md    ← R-ARCH
-    │   ├── PERFORMANCE_REVIEW.md                ← R-PERF
-    │   ├── A11Y_AND_ERROR_HANDLING_REVIEW.md    ← R-A11Y, R-ERR
-    │   └── PROJECT_COMPLIANCE_REVIEW.md         ← R-PROJ (user-filled template)
-    ├── templates/
-    │   └── REPORT.md                            ← final report template
-    ├── reports/                                 ← generated reviews (gitignored)
-    └── examples/
-        ├── subagent-prompt.md
-        └── subagent-output.json
+    │   ├── SECURITY_REVIEW.md                   ← (identical)
+    │   ├── ARCHITECTURE_CLEAN_CODE_REVIEW.md    ← (identical)
+    │   ├── PERFORMANCE_REVIEW.md                ← (identical)
+    │   ├── A11Y_AND_ERROR_HANDLING_REVIEW.md    ← (identical)
+    │   └── PROJECT_COMPLIANCE_REVIEW.md         ← R-KATA-001..013, pre-filled from kata README
+    ├── templates/REPORT.md                      ← (identical)
+    └── examples/                                ← (identical)
 ```
 
 ---
