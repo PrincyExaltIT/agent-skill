@@ -1,0 +1,27 @@
+{
+  "agent": "angular-security-reviewer",
+  "findings": [
+    {
+      "ruleId": "R-SEC-003",
+      "severity": "MAJOR",
+      "domain": "security",
+      "file": "src/app/features/auth/login.component.ts",
+      "line": 42,
+      "snippet": "this.sanitizer.bypassSecurityTrustHtml(userInput)",
+      "message": "bypassSecurityTrustHtml appliqué directement sur une entrée utilisateur — XSS possible.",
+      "suggestion": "Whitelister/valider la valeur en amont, ou laisser Angular sanitiser via binding standard.",
+      "source": "https://angular.dev/best-practices/security"
+    },
+    {
+      "ruleId": "R-SEC-011",
+      "severity": "BLOCKER",
+      "domain": "security",
+      "file": "src/app/shared/iframe.component.ts",
+      "line": 18,
+      "snippet": "this.iframeUrl = 'https://' + this.host + '/embed';",
+      "message": "URL d'iframe construite à partir d'une entrée non vérifiée puis bypass — risque d'injection de domaine.",
+      "suggestion": "Whitelister les hosts autorisés avant d'appliquer bypassSecurityTrustResourceUrl.",
+      "source": "https://angular.dev/best-practices/security"
+    }
+  ]
+}
