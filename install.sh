@@ -80,6 +80,16 @@ if [[ "$REF" == -* ]]; then
   exit 2
 fi
 
+# ── kata variant requires Playwright MCP ───────────────────────────────────
+# Step 6 (empirical DOM validation) is integral to the kata grading — the
+# reviewer must verify positionnement temps→pixels, somme des largeurs au pic,
+# responsivité, etc. against the real rendered DOM. Force WITH_MCP=playwright
+# when this skill is installed, but respect an explicit user choice.
+if [[ "$SKILL" == "angular-review-kata-rendering-events" ]] && [[ -z "$WITH_MCP" ]]; then
+  WITH_MCP="playwright"
+  info "Skill '$SKILL' auto-enables ${c_blue}--with-mcp playwright${c_reset} (Step 6 empirical DOM validation is integral to kata grading)."
+fi
+
 # ── auto-detect provider ───────────────────────────────────────────────────
 detect_provider() {
   local hits=()

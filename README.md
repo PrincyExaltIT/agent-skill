@@ -39,6 +39,7 @@ curl -fsSL .../install.sh | bash -s -- --scope global
 curl -fsSL .../install.sh | bash -s -- --with-mcp playwright
 
 # Install the kata-specific variant (pre-filled R-KATA rules for « Rendering Events »)
+# Note: this skill auto-enables --with-mcp playwright (Step 6 is integral to kata grading)
 curl -fsSL .../install.sh | bash -s -- --skill angular-review-kata-rendering-events
 
 # Combine
@@ -99,7 +100,7 @@ The agent will:
 | Skill | Invoke with | What it does |
 |---|---|---|
 | [`angular-review`](./angular-review) | `/angular-review` | Multi-reviewer Angular code audit (security, architecture, performance, a11y/errors, optional project-compliance) using guidelines compiled from angular.dev. Ships with an **empty** `PROJECT_COMPLIANCE_REVIEW.md` template — fill it in to encode your project's R-PROJ constraints. Optionally validates the rendered DOM via the Playwright MCP server. **Read-only** — produces a markdown report, never modifies code. |
-| [`angular-review-kata-rendering-events`](./angular-review-kata-rendering-events) | `/angular-review-kata-rendering-events` | Variant of `angular-review` **pre-filled** with the 13 R-KATA rules of the « Rendering Events » kata (RFC2119 constraints from the kata brief: positionnement temps→pixels, chevauchement, responsivité, libs autorisées, …). Otherwise byte-for-byte identical to `angular-review`. Install with `--skill angular-review-kata-rendering-events`. |
+| [`angular-review-kata-rendering-events`](./angular-review-kata-rendering-events) | `/angular-review-kata-rendering-events` | Variant of `angular-review` **pre-filled** with the 13 R-KATA rules of the « Rendering Events » kata (RFC2119 constraints from the kata brief: positionnement temps→pixels, chevauchement, responsivité, libs autorisées, …). Otherwise byte-for-byte identical to `angular-review`. Install with `--skill angular-review-kata-rendering-events`. **Auto-enables `--with-mcp playwright`** (Step 6 empirical DOM validation is integral to kata grading). |
 
 > ✏️ **Choosing between the two**: install `angular-review` if you have your own constraints to encode (or none at all). Install `angular-review-kata-rendering-events` if you're submitting the « Rendering Events » kata and want the conformity rules pre-loaded — no `PROJECT_COMPLIANCE_REVIEW.md` editing needed.
 
@@ -160,6 +161,8 @@ Replace `<skill>` below with the skill name passed to `--skill` (`angular-review
 ## 🪛 Optional: Playwright MCP
 
 Step 6 of `angular-review` validates findings against the live DOM (positioning, a11y, resize behaviour) using the [Playwright MCP server](https://github.com/microsoft/playwright-mcp). The step is **opt-in** — if the MCP server isn't registered, it's silently skipped.
+
+> 🎯 **Exception**: the [`angular-review-kata-rendering-events`](./angular-review-kata-rendering-events) variant **auto-enables** `--with-mcp playwright` at install time — Step 6 is integral to kata grading (it empirically verifies the temps→pixels positioning, the somme des largeurs au pic for overlapping clusters, and the responsivité on resize). If you pass `--with-mcp` explicitly, your choice is respected; otherwise the installer fills it in for you.
 
 The easiest path is `--with-mcp playwright` at install time. If you'd rather wire it up manually, the per-provider snippets are:
 
