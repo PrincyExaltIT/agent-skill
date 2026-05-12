@@ -39,10 +39,11 @@ param(
 $ErrorActionPreference = "Stop"
 $repo = if ($env:AGENT_SKILL_REPO) { $env:AGENT_SKILL_REPO } else { "PrincyExaltIT/agent-skill" }
 
-function Info($msg) { Write-Host "ℹ $msg" -ForegroundColor Cyan }
-function Ok($msg)   { Write-Host "✓ $msg" -ForegroundColor Green }
-function Warn($msg) { Write-Host "⚠ $msg" -ForegroundColor Yellow }
-function Err($msg)  { Write-Host "✗ $msg" -ForegroundColor Red }
+# ASCII status markers (Unicode glyphs render badly on Windows PowerShell 5.x default encoding)
+function Info($msg) { Write-Host "[..] $msg" -ForegroundColor Cyan }
+function Ok($msg)   { Write-Host "[ok] $msg" -ForegroundColor Green }
+function Warn($msg) { Write-Host "[!!] $msg" -ForegroundColor Yellow }
+function Err($msg)  { Write-Host "[xx] $msg" -ForegroundColor Red }
 
 # ── sanity ─────────────────────────────────────────────────────────────────
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
@@ -88,7 +89,7 @@ switch ("${Provider}:${Scope}") {
   default { Err "Unsupported provider/scope: $Provider/$Scope"; exit 2 }
 }
 
-Info "Installing $Skill for $Provider ($Scope) → $dest"
+Info "Installing $Skill for $Provider ($Scope) -> $dest"
 
 # ── confirm overwrite if needed ────────────────────────────────────────────
 if (Test-Path $dest) {
@@ -101,13 +102,32 @@ if (Test-Path $dest) {
   Move-Item $dest "$dest.bak"
 }
 
+# ── resolve clone URL (supports GitHub shortcut, full URL, or local path) ──
+if ($repo -match '^(https?://|git@|file://|ssh://)') {
+  $cloneUrl = $repo
+} elseif ($repo -match '^(\.\.?[/\\]|[/\\]|[A-Za-z]:)') {
+  $cloneUrl = $repo
+} else {
+  $cloneUrl = "https://github.com/$repo.git"
+}
+
 # ── fetch the skill ────────────────────────────────────────────────────────
 $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid())
 try {
-  Info "Fetching ${repo}@${Ref}…"
-  git clone --depth 1 --branch $Ref "https://github.com/$repo.git" $tmp 2>$null | Out-Null
+  Info "Fetching ${cloneUrl}@${Ref}..."
+  # --quiet suppresses git's "Cloning into..." stderr, which PowerShell otherwise treats as an error.
+  # Wrap in & with $ErrorActionPreference=Continue locally so a non-zero exit doesn't throw before we check it.
+  $prevEAP = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  & git clone --depth 1 --quiet --branch $Ref $cloneUrl $tmp 2>$null
+  $cloneExit = $LASTEXITCODE
+  $ErrorActionPreference = $prevEAP
+  if ($cloneExit -ne 0) {
+    Err "git clone failed (url: $cloneUrl, ref: $Ref, exit: $cloneExit)."
+    exit 1
+  }
   if (-not (Test-Path (Join-Path $tmp $Skill))) {
-    Err "Skill '$Skill' not found in repo."
+    Err "Skill '$Skill' not found in source."
     exit 1
   }
   $parent = Split-Path $dest -Parent
