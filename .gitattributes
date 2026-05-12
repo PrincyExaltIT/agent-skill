@@ -1,0 +1,15 @@
+# Force LF line endings for shell scripts so they're executable on Linux/macOS
+# regardless of the contributor's OS.
+*.sh           text eol=lf
+*.bash         text eol=lf
+
+# install.ps1 has a `#!/usr/bin/env pwsh` shebang and pwsh exists on Linux/macOS too.
+# CRLF breaks shebanged scripts on Unix, so normalise PowerShell scripts to LF as well.
+*.ps1          text eol=lf
+
+# Markdown and config files: normalize to LF
+*.md           text eol=lf
+*.json         text eol=lf
+*.toml         text eol=lf
+*.yml          text eol=lf
+*.yaml         text eol=lf
