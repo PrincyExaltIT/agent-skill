@@ -117,13 +117,22 @@ if [[ -e "$DEST" ]]; then
   fi
 fi
 
+# ── resolve clone URL (supports GitHub shortcut, full URL, or local path) ──
+if [[ "$REPO" =~ ^(https?://|git@|file://|ssh://) ]]; then
+  CLONE_URL="$REPO"
+elif [[ "$REPO" =~ ^(\.\.?/|/|[A-Za-z]:) ]]; then
+  CLONE_URL="$REPO"
+else
+  CLONE_URL="https://github.com/$REPO.git"
+fi
+
 # ── fetch the skill ────────────────────────────────────────────────────────
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
-info "Fetching $REPO@$REF…"
-git clone --depth 1 --branch "$REF" "https://github.com/$REPO.git" "$TMP" >/dev/null 2>&1 \
-  || { err "git clone failed (repo: $REPO, ref: $REF)."; exit 1; }
-[[ -d "$TMP/$SKILL" ]] || { err "Skill '$SKILL' not found in repo."; exit 1; }
+info "Fetching $CLONE_URL@$REF…"
+git clone --depth 1 --branch "$REF" "$CLONE_URL" "$TMP" >/dev/null 2>&1 \
+  || { err "git clone failed (url: $CLONE_URL, ref: $REF)."; exit 1; }
+[[ -d "$TMP/$SKILL" ]] || { err "Skill '$SKILL' not found in source."; exit 1; }
 
 mkdir -p "$(dirname "$DEST")"
 cp -r "$TMP/$SKILL" "$DEST"
