@@ -126,7 +126,7 @@ Reading the one-liner with a healthy dose of skepticism is encouraged. Here's ex
 6. **Copies** the requested skill folder to its destination.
 7. **Places the provider-specific prompt** at the slash-command location (`.github/prompts/` for Copilot, `.codex/prompts/` for Codex).
 8. _(If `--with-mcp playwright`)_ **Registers** the Playwright MCP server — via `claude mcp add` if available, otherwise by writing the right config file for your provider.
-9. **No network beyond the GitHub clone.** No telemetry. No global package installs.
+9. **No network beyond the GitHub clone at install time.** No telemetry. No global package installs. (Note: the registered Playwright MCP server runs `npx -y @playwright/mcp@latest` the first time your AI agent uses it — that command fetches `@playwright/mcp` from npm on first launch, not during install.)
 
 The two scripts ([`install.sh`](./install.sh), [`install.ps1`](./install.ps1)) are short and unminified — read before running if you want.
 

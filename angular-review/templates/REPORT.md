@@ -34,11 +34,11 @@
 <!-- idem -->
 
 ## Subagents lancés
-- angular-security-reviewer — {{N}} findings
-- angular-architecture-reviewer — {{N}} findings
-- angular-performance-reviewer — {{N}} findings
-- angular-a11y-error-reviewer — {{N}} findings
-- project-compliance-reviewer — {{N}} findings *(si R-PROJ actif)*
+- angular-security-reviewer — {{N_R_SEC}} findings
+- angular-architecture-reviewer — {{N_R_ARCH}} findings
+- angular-performance-reviewer — {{N_R_PERF}} findings
+- angular-a11y-error-reviewer — {{N_R_A11Y_ERR}} findings
+- project-compliance-reviewer — {{N_R_PROJ}} findings *(si R-PROJ actif)*
 
 ## Validation empirique (Playwright MCP)
 <!--
