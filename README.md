@@ -2,7 +2,26 @@
 
 Provider-agnostic agent skills — one bundle, works on **Claude Code**, **GitHub Copilot** (VS Code or CLI), and **OpenAI Codex CLI**.
 
-## ⚡ Install in 10 seconds
+## ⚡ Install with forgent
+
+This repo is the default registry for **[forgent](https://github.com/PrincyExaltIT/forgent)**, a shadcn-style CLI for AI agent skills. One command, any provider:
+
+```bash
+npx forgent add --provider claude angular-review
+# or: --provider copilot | codex | cursor
+```
+
+That's it. In your AI agent, type `/angular-review` to use the skill.
+
+Want the kata variant? `npx forgent add --provider claude angular-review-kata-rendering-events`.
+
+See [`forgent`'s README](https://github.com/PrincyExaltIT/forgent#readme) for full flags, `forgent.config.json`, and global install (`npm i -g forgent`).
+
+---
+
+## Legacy install (deprecated)
+
+> The `install.sh` / `install.ps1` curl one-liners below are kept for users mid-migration. They were tied to the old root-level skill layout and will not work after the move to `skills/`. New users should install via `forgent`.
 
 From the root of your project, run the one-liner for your shell. The installer **auto-detects** your AI provider (Claude / Copilot / Codex) from project markers and drops the skill at the right path.
 
@@ -18,9 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/main/inst
 irm https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/main/install.ps1 | iex
 ```
 
-That's it. In your AI agent, type `/angular-review` to use the skill.
-
-> Want the kata-specific variant (pre-filled with the R-KATA rules of the « Rendering Events » brief)? Append `--skill angular-review-kata-rendering-events` to the one-liner — see the [Available skills](#-available-skills) table below.
+> Want the kata-specific variant? Append `--skill angular-review-kata-rendering-events` to the one-liner — see the [Available skills](#-available-skills) table below.
 
 ---
 

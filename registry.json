@@ -1,0 +1,45 @@
+{
+  "$schema": "https://forgent.dev/schema/registry.json",
+  "name": "agent-skill",
+  "homepage": "https://github.com/PrincyExaltIT/agent-skill",
+  "items": [
+    {
+      "name": "angular-review",
+      "description": "Multi-reviewer Angular code audit (security, architecture, performance, a11y/errors, optional project-compliance) on the current branch or a specified diff, with optional empirical DOM validation via the Playwright MCP server.",
+      "tags": ["angular", "code-review", "quality", "playwright"],
+      "files": [
+        { "path": "SKILL.md", "type": "skill:main" },
+        { "path": "ORCHESTRATION.md", "type": "skill:doc" },
+        { "path": "angular-review.codex.md", "type": "skill:codex" },
+        { "path": "angular-review.prompt.md", "type": "skill:copilot" },
+        { "path": "examples/subagent-output.json", "type": "skill:example" },
+        { "path": "examples/subagent-prompt.md", "type": "skill:example" },
+        { "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md", "type": "skill:reference" },
+        { "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md", "type": "skill:reference" },
+        { "path": "references/PERFORMANCE_REVIEW.md", "type": "skill:reference" },
+        { "path": "references/PROJECT_COMPLIANCE_REVIEW.md", "type": "skill:reference" },
+        { "path": "references/SECURITY_REVIEW.md", "type": "skill:reference" },
+        { "path": "templates/REPORT.md", "type": "skill:template" }
+      ]
+    },
+    {
+      "name": "angular-review-kata-rendering-events",
+      "description": "Variant of angular-review pre-wired for the R-KATA Rendering Events brief: embeds R-KATA-001..013 rules (positioning time-to-pixels, overlap, responsiveness). Otherwise identical to angular-review.",
+      "tags": ["angular", "code-review", "quality", "playwright", "kata"],
+      "files": [
+        { "path": "SKILL.md", "type": "skill:main" },
+        { "path": "ORCHESTRATION.md", "type": "skill:doc" },
+        { "path": "angular-review-kata-rendering-events.codex.md", "type": "skill:codex" },
+        { "path": "angular-review-kata-rendering-events.prompt.md", "type": "skill:copilot" },
+        { "path": "examples/subagent-output.json", "type": "skill:example" },
+        { "path": "examples/subagent-prompt.md", "type": "skill:example" },
+        { "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md", "type": "skill:reference" },
+        { "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md", "type": "skill:reference" },
+        { "path": "references/PERFORMANCE_REVIEW.md", "type": "skill:reference" },
+        { "path": "references/PROJECT_COMPLIANCE_REVIEW.md", "type": "skill:reference" },
+        { "path": "references/SECURITY_REVIEW.md", "type": "skill:reference" },
+        { "path": "templates/REPORT.md", "type": "skill:template" }
+      ]
+    }
+  ]
+}
