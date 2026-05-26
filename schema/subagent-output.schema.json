@@ -71,6 +71,44 @@
           "type": "string",
           "minLength": 1,
           "description": "Pointer to the canonical reference (angular.dev URL, internal RFC, kata brief, etc.)."
+        },
+        "evidence": {
+          "type": "object",
+          "description": "Optional structured proof backing the finding. Required by skills enforcing evidence-based review (e.g. the kata variant for Step 6 DOM findings). When present, MUST include at least 'kind'.",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": ["static", "dom", "test", "manual", "not_checked"],
+              "description": "How the finding was obtained. 'dom' = measured via Playwright/MCP at runtime; 'test' = from a versioned test run; 'static' = from diff/source inspection; 'manual' = author-asserted; 'not_checked' = constraint not validated this run."
+            },
+            "expected": {
+              "type": "string",
+              "description": "Expected value or behaviour (e.g. 'top = 25% of container height for 12:00')."
+            },
+            "actual": {
+              "type": "string",
+              "description": "Observed value (e.g. 'top = 31.2%')."
+            },
+            "tolerance": {
+              "type": "string",
+              "description": "Accepted deviation (e.g. '±2px' or '±0.5%')."
+            },
+            "selector": {
+              "type": "string",
+              "description": "DOM selector used to locate the element (CSS selector, ARIA query, data-testid)."
+            },
+            "measurement": {
+              "type": "string",
+              "description": "How the value was measured (e.g. 'getBoundingClientRect().top relative to .calendar container, viewport 1280×720')."
+            },
+            "confidence": {
+              "type": "string",
+              "enum": ["high", "medium", "low"],
+              "description": "Reviewer confidence in the measurement. 'high' = direct DOM read with stable selector; 'medium' = heuristic selector; 'low' = inferred or fallback."
+            }
+          }
         }
       }
     }

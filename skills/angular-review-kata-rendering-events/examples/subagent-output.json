@@ -1,28 +1,63 @@
 {
   "$schema": "https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/main/schema/subagent-output.schema.json",
-  "agent": "angular-security-reviewer",
+  "agent": "kata-compliance-reviewer",
   "findings": [
     {
-      "ruleId": "R-SEC-003",
-      "severity": "MAJOR",
-      "domain": "security",
-      "file": "src/app/features/auth/login.component.ts",
-      "line": 42,
-      "snippet": "this.sanitizer.bypassSecurityTrustHtml(userInput)",
-      "message": "bypassSecurityTrustHtml appliqué directement sur une entrée utilisateur — XSS possible.",
-      "suggestion": "Whitelister/valider la valeur en amont, ou laisser Angular sanitiser via binding standard.",
-      "source": "https://angular.dev/best-practices/security"
+      "ruleId": "R-KATA-001",
+      "severity": "BLOCKER",
+      "domain": "kata-compliance",
+      "file": "src/app/calendar.component.html",
+      "line": 14,
+      "snippet": "<div class=\"event\" [attr.data-id]=\"event.id\">",
+      "message": "L'évènement est rendu sans attribut HTML `id` — le pipeline de test ne peut pas localiser l'élément via `document.getElementById(event.id)`.",
+      "suggestion": "Remplacer `[attr.data-id]` par `[id]` (binding Angular) : `<div [id]=\"event.id\">`. Référence : README, contrainte RFC2119 sur l'attribut `id`.",
+      "source": "README.md",
+      "evidence": {
+        "kind": "static",
+        "expected": "<div [id]=\"event.id\"> ou <div [attr.id]=\"event.id\">",
+        "actual": "<div [attr.data-id]=\"event.id\">",
+        "confidence": "high"
+      }
     },
     {
-      "ruleId": "R-SEC-011",
+      "ruleId": "R-KATA-004",
       "severity": "BLOCKER",
-      "domain": "security",
-      "file": "src/app/shared/iframe.component.ts",
-      "line": 18,
-      "snippet": "this.iframeUrl = 'https://' + this.host + '/embed';",
-      "message": "URL d'iframe construite à partir d'une entrée non vérifiée puis bypass — risque d'injection de domaine.",
-      "suggestion": "Whitelister les hosts autorisés avant d'appliquer bypassSecurityTrustResourceUrl.",
-      "source": "https://angular.dev/best-practices/security"
+      "domain": "kata-compliance",
+      "file": "src/app/calendar.component.html",
+      "line": 42,
+      "snippet": "[style.top.px]=\"event.start\"",
+      "message": "La position `top` ne mappe pas l'heure de début sur la hauteur du calendrier. La formule attendue (oracle §3) est `top = (eventStartMinutes - dayStartMinutes) / totalDayMinutes * containerHeight`.",
+      "suggestion": "Calculer `top` à partir des minutes depuis 09:00, relatif à la plage 09:00→21:00 (720min). Voir KATA_LAYOUT_ORACLE.md §3 et §10 exemple A.",
+      "source": "references/KATA_LAYOUT_ORACLE.md",
+      "evidence": {
+        "kind": "dom",
+        "expected": "top = 25% of container height for event at 12:00 (oracle §3, §10 example A)",
+        "actual": "top = 31.2%",
+        "tolerance": "±0.5%",
+        "selector": "[id='42']",
+        "measurement": "getBoundingClientRect().top relative to .calendar container, viewport 1280×720, after rAF×2 + fonts.ready",
+        "confidence": "high"
+      }
+    },
+    {
+      "ruleId": "R-RUNTIME-001",
+      "severity": "MAJOR",
+      "domain": "kata-compliance",
+      "file": "src/app/calendar.component.ts",
+      "line": 1,
+      "snippet": "(no static counterpart — measured at runtime)",
+      "message": "À la redimension de la viewport de 1280×720 vers 375×667, les positions des évènements ne sont pas recalculées : `top` reste à la valeur calculée pour 1280×720. Aucun `ResizeObserver` ni listener `window.resize` n'est attaché.",
+      "suggestion": "Soit exprimer top/height/width en `%` (recalcul navigateur natif), soit ajouter un `ResizeObserver` sur le conteneur qui déclenche un re-render. Voir KATA_LAYOUT_ORACLE.md §6.",
+      "source": "references/KATA_LAYOUT_ORACLE.md",
+      "evidence": {
+        "kind": "dom",
+        "expected": "top recomputed after viewport resize (oracle §6, §9 viewports 1280×720 → 375×667)",
+        "actual": "top stays at desktop pixel value after resize to 375×667",
+        "tolerance": "±2px",
+        "selector": "[id='42']",
+        "measurement": "getBoundingClientRect().top measured at 1280×720, then page.setViewportSize(375×667) + rAF×2, re-measured — no change observed",
+        "confidence": "high"
+      }
     }
   ]
 }

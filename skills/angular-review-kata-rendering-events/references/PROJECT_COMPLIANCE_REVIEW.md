@@ -75,25 +75,26 @@ L'agent doit :
 - **Quoi vérifier** : `startHour = 9`, `endHour = 21`. Plage totale = **720 minutes** (12 h).
 - **Pattern à flag** : `startHour` à `0`/`8`/`10` ; `endHour` à `24`/`20`/`22` ; toute plage qui ne donne pas 720 minutes.
 - **Exemple ✅** : `hours = [9, 10, ..., 20]; endHour = 21;`
+- **Oracle** : voir `KATA_LAYOUT_ORACLE.md` §1 (système de coordonnées) et §2 (plage horaire).
 
 ### R-KATA-004 — Formule de position `top`
 
 - **Sévérité** : 🔴 BLOCKER
 - **Référence README** : « la position relative des événements se calcule en fonction de la bordure supérieure de la fenêtre, l'heure et la durée des événements. »
-- **Formule attendue (en %)** : `top% = ((HH - startHour) * 60 + MM) / totalMinutes * 100`
-- **Formule attendue (en px)** : `top_px = ((HH - startHour) * 60 + MM) / totalMinutes * containerHeight`
+- **Quoi vérifier** : formule de positionnement vertical conforme à l'oracle.
 - **Pattern à flag** :
   - Calcul oubliant les minutes (`MM`) ;
   - Calcul en `HH * 60` au lieu de `(HH - startHour) * 60` ;
   - Position absolue en px hardcodée non-responsive.
+- **Oracle** : voir `KATA_LAYOUT_ORACLE.md` §3 (formule `top`) et §10 exemple A. Tolérance : §7 (`±0.5%` ou `±2px`).
 
 ### R-KATA-005 — Formule de hauteur `height`
 
 - **Sévérité** : 🔴 BLOCKER
 - **Référence README** : « un événement […] durant 1h […] aura une hauteur de 100px. »
-- **Formule attendue (en %)** : `height% = duration / totalMinutes * 100`
-- **Formule attendue (en px)** : `height_px = duration / totalMinutes * containerHeight`
+- **Quoi vérifier** : formule de hauteur conforme à l'oracle.
 - **Pattern à flag** : hauteur en pixels fixe indépendante de `duration` ; `height: ${duration}px` qui ne respecte pas l'échelle du container.
+- **Oracle** : voir `KATA_LAYOUT_ORACLE.md` §4 (formule `height`) et §10 exemple A. Tolérance : §7.
 
 ### R-KATA-006 — Chevauchement : largeurs égales
 
@@ -102,6 +103,7 @@ L'agent doit :
 - **Quoi vérifier** : pour tout cluster d'évènements en chevauchement transitif, toutes les `div` du cluster partagent la **même largeur** rendue.
 - **Pattern accepté** : algorithme qui calcule un `totalColumns` par cluster puis applique `width = 100 / totalColumns`.
 - **Pattern à flag** : largeurs calculées par évènement sans regroupement ; empilement vertical (z-index) sans découpe horizontale.
+- **Oracle** : voir `KATA_LAYOUT_ORACLE.md` §5 (règles de colonnes) et §10 exemple B. Tolérance entre widths d'un même cluster : §7 (`±1px`).
 
 ### R-KATA-007 — Chevauchement : somme des largeurs au pic du cluster (lecture Outlook)
 
@@ -113,7 +115,15 @@ L'agent doit :
 - **Pattern à flag** :
   - Largeur fixe en pixels qui ne s'adapte pas au cluster ;
   - Marges (`gap`) entre colonnes qui réduisent la somme au pic ;
-  - Largeur ne dépendant pas de `max-concurrent` du cluster.
+  - Largeur ne dépendant pas de `max-concurrent` du cluster ;
+  - **Algorithme « first-fit column packing » qui sur-compte les colonnes** : sur le pattern escalier (A 17:00-19:00, B 17:00-18:00, C 18:30-19:30 → peak=2 mais l'algo peut retourner `totalColumns=3` parce que C ne peut pas réutiliser la colonne de B due au chevauchement avec A). Le test critique : l'algorithme calcule-t-il `max(événements simultanés à n'importe quelle minute du cluster)`, ou seulement « max colonnes jamais nécessaires en first-fit » ? Les deux divergent sur des inputs adversariaux (cf. oracle §11).
+- **Validation requise** :
+  1. Lire l'algorithme de placement dans le composant/service ;
+  2. Tester mentalement sur les 3 patterns adversariaux de l'oracle §11 ;
+  3. Si l'algorithme passe les 3 patterns → R-KATA-007 satisfait, aucun finding ;
+  4. Si l'algorithme échoue sur ≥ 1 pattern → finding `R-KATA-007 MAJOR` avec `evidence.kind = "static"`, le pattern qui échoue en `expected/actual`, confidence `high` ;
+  5. **Si tu ne peux pas tracer l'algorithme** (code obfusqué, logique distribuée sur trop de fichiers, ou autre obstacle) → finding `R-KATA-007 INFO` avec `evidence.kind = "not_checked"`, message « Algorithm trace not performed: <raison> », pour que le rapport final indique explicitement que la robustesse adversariale n'a pas été validée. Ne JAMAIS produire un verdict positif sans avoir explicité ce manque.
+- **Oracle** : voir `KATA_LAYOUT_ORACLE.md` §5 (règles de colonnes), §10 exemple B (somme au pic = containerWidth), **§11 (patterns adversariaux à tester)**.
 
 ### R-KATA-008 — Conteneur plein écran
 
@@ -126,6 +136,7 @@ L'agent doit :
 - **Pattern à flag** :
   - `body` sans `height: 100%` et calendrier en `height: auto` ;
   - Wrapper centré avec `max-width` qui n'occupe pas toute la largeur (sauf design explicite conforme à R-KATA-007).
+- **Oracle** : voir `KATA_LAYOUT_ORACLE.md` §1 (conteneur couvre toute la viewport).
 
 ### R-KATA-009 — Responsivité au `resize`
 
@@ -138,6 +149,7 @@ L'agent doit :
 - **Pattern à flag** :
   - Positions calculées **une seule fois** en `px` au mount, sans listener ;
   - Hauteur du container fixée (ex. `height: 800px`) sans relation au viewport.
+- **Oracle** : voir `KATA_LAYOUT_ORACLE.md` §6 (responsive) et §9 (procédure de mesure aux viewports `1280×720` et `375×667`).
 
 ### R-KATA-010 — Pas de librairies non autorisées
 
@@ -171,14 +183,19 @@ L'agent doit :
 
 ### R-KATA-013 — JS / TS moderne, lisibilité
 
-- **Sévérité** : 🔵 INFO
+- **Sévérité** : 🔵 INFO (peut être 🟡 MINOR si lisibilité notoirement compromise)
 - **Référence README, RFC2119** : « Le projet `DEVRAIT` être implémenté en JS moderne ES6 » ; « Le projet `PEUT` être implémenté en Typescript » ; « Les informations `DEVRAIENT` être facilement lisibles et agréables à l'œil ».
-- **Quoi vérifier** : usage cohérent de `const`/`let`, destructuring, arrow functions, signaux Angular (`signal`, `computed`, `input`), nouveau control flow (`@for`, `@if`), absence de `var`, absence d'`any` non justifié.
-- **Pattern à flag** :
+- **Quoi vérifier — code moderne** : usage cohérent de `const`/`let`, destructuring, arrow functions, signaux Angular (`signal`, `computed`, `input`), nouveau control flow (`@for`, `@if`), absence de `var`, absence d'`any` non justifié.
+- **Quoi vérifier — lisibilité visuelle (densité texte vs hauteur d'évènement)** :
+  - Lire l'input typique (ex. `src/assets/input.json`) et identifier la durée la plus courte (ex. event 3 = 10 min).
+  - Calculer `height_pct = duration / 720 * 100` (oracle §4). Pour 10 min : 1.4 % → ~10px sur viewport 720px.
+  - Vérifier le template du composant événement : combien de lignes de texte affichées ? `{{ event.id }}` seul tient en 1 ligne. `Event {{ id }}, {{ start }} - {{ endTime }}` (~25 caractères) ne tient pas dans 10px de hauteur sans overflow.
+  - **Pattern à flag** : événements courts (≤ 30 min ⇒ height ≤ ~30px) avec plus que `event.id` rendu en texte, sans `overflow: hidden + text-overflow: ellipsis` ni tooltip. Sévérité : 🟡 MINOR si overflow visible, 🔵 INFO sinon.
+- **Pattern à flag — code** :
   - `var` ou IIFE ;
   - `function` traditionnelles dans des méthodes de composant ;
   - `any` non commenté en TypeScript ;
-  - Mise en page illisible ou densité d'information trop forte sur la `div` d'évènement.
+  - Mise en page illisible ou densité d'information trop forte sur la `div` d'évènement (cf. point lisibilité ci-dessus).
 
 ---
 

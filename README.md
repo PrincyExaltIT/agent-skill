@@ -15,8 +15,8 @@ Then, in your AI agent, invoke `/angular-review`. See [`forgent`'s README](https
 
 | Skill | Invoke with | What it does |
 |---|---|---|
-| [`angular-review`](./skills/angular-review) | `/angular-review` | Multi-reviewer Angular code audit (security, architecture, performance, a11y/errors, optional project-compliance) using guidelines compiled from angular.dev. Ships with an **empty** `PROJECT_COMPLIANCE_REVIEW.md` template — fill it in to encode your R-PROJ rules. Read-only — produces a markdown report, never modifies code. |
-| [`angular-review-kata-rendering-events`](./skills/angular-review-kata-rendering-events) | `/angular-review-kata-rendering-events` | Variant of `angular-review` **pre-filled** with the 13 R-KATA rules of the « Rendering Events » kata (RFC2119 constraints: time→pixel positioning, overlap, responsivity). Auto-enables Step 6 Playwright MCP validation. |
+| [`angular-review`](./skills/angular-review) | `/angular-review` | Multi-reviewer Angular code audit (security, architecture, performance, a11y/errors, optional project-compliance) using guidelines compiled from angular.dev. Ships with an **empty** `PROJECT_COMPLIANCE_REVIEW.md` template — fill it in to encode your project rules under any `rule_prefix` (default `R-PROJ`; the orchestration reads the frontmatter dynamically). Optional Step 6 Playwright MCP DOM validation. Read-only — produces a markdown report, never modifies code. |
+| [`angular-review-kata-rendering-events`](./skills/angular-review-kata-rendering-events) | `/angular-review-kata-rendering-events` | **Evidence-based** variant of `angular-review` pre-wired for the « Rendering Events » kata: 13 `R-KATA` rules (RFC2119 constraints: time→pixel positioning, overlap, responsivity) + a `KATA_LAYOUT_ORACLE.md` (formulas, tolerances, DOM measurement procedure, adversarial test patterns). Verdict driven **only** by R-KATA findings; non-R-KATA reviewers contribute to a separate « Hygiène prod » section without blocking the kata verdict. Step 6 Playwright DOM validation is mandatory for `APPROVE`. |
 
 Each skill ships with one provider-agnostic `ORCHESTRATION.md` (single source of truth), thin per-provider entry-point files (`SKILL.md`, `<skill>.prompt.md`, `<skill>.codex.md`), and shared assets (rules, templates, examples).
 
@@ -48,7 +48,7 @@ The agent will:
 2. Add at least one rule under « Règles à vérifier ». Use the template format in the file.
 3. *(Optional)* Adjust the `applies_to` glob and `rule_prefix` in the frontmatter.
 
-The next invocation auto-detects your rules and runs an extra `project-compliance-reviewer` sub-agent emitting `R-PROJ-NNN` findings. A single R-PROJ BLOCKER ⇒ `REQUEST_CHANGES`.
+The next invocation auto-detects your rules and runs an extra `project-compliance-reviewer` sub-agent emitting `<rule_prefix>-NNN` findings (default `R-PROJ`). A single BLOCKER under the configured `rule_prefix` ⇒ `REQUEST_CHANGES`.
 
 > 💡 The [`angular-review-kata-rendering-events`](./skills/angular-review-kata-rendering-events) skill is this pattern applied: 13 R-KATA rules encoded from a kata brief's RFC2119 constraints. Read its `references/PROJECT_COMPLIANCE_REVIEW.md` for a concrete example of severity, flag patterns, and ❌/✅ examples.
 
@@ -82,7 +82,7 @@ For Copilot (`.vscode/mcp.json`), Codex (`~/.codex/config.toml`), or project-loc
 2. Append an entry to `registry.json` with the file manifest.
 3. Open a PR.
 
-Manifest shape is documented in [`forgent`'s README](https://github.com/PrincyExaltIT/forgent#manifest-shape). This registry follows the [forgent registry schema](https://raw.githubusercontent.com/PrincyExaltIT/forgent/main/schema/registry.schema.json) — current registry version: `0.1.0`.
+Manifest shape is documented in [`forgent`'s README](https://github.com/PrincyExaltIT/forgent#manifest-shape). This registry follows the [forgent registry schema](https://raw.githubusercontent.com/PrincyExaltIT/forgent/main/schema/registry.schema.json). The current version of this registry is declared in [`registry.json`](./registry.json).
 
 ## Capability matrix per provider
 

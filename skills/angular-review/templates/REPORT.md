@@ -2,12 +2,15 @@
 
 **Verdict** : {{VERDICT}}  <!-- APPROVE | COMMENT | REQUEST_CHANGES -->
 
-## Conformité projet (si R-PROJ actif)
-- 🎯 R-PROJ BLOCKER : {{N_PROJ_BLOCKER}}
-- 🎯 R-PROJ MAJOR   : {{N_PROJ_MAJOR}}
-- 🎯 R-PROJ MINOR   : {{N_PROJ_MINOR}}
+## Conformité projet ({{RULE_PREFIX}}) — *si reviewer actif*
 
-> Un seul R-PROJ BLOCKER suffit à classer le rendu en `REQUEST_CHANGES` (non-conformité au cahier des charges).
+> Affiche cette section uniquement si `references/PROJECT_COMPLIANCE_REVIEW.md` contient au moins une règle. `{{RULE_PREFIX}}` est lu dynamiquement depuis le frontmatter `rule_prefix` (défaut `R-PROJ`).
+
+- 🎯 {{RULE_PREFIX}} BLOCKER : {{N_PROJ_BLOCKER}}
+- 🎯 {{RULE_PREFIX}} MAJOR   : {{N_PROJ_MAJOR}}
+- 🎯 {{RULE_PREFIX}} MINOR   : {{N_PROJ_MINOR}}
+
+> Un seul BLOCKER sous `{{RULE_PREFIX}}` suffit à classer le rendu en `REQUEST_CHANGES` (non-conformité au cahier des charges).
 
 ## Résumé global
 - 🔴 BLOCKER : {{N_BLOCKER}}
@@ -23,6 +26,8 @@
   > {{snippet}}
   {{message}} — {{suggestion}}
   Source : {{source}}
+  <!-- si evidence présent : -->
+  Evidence ({{evidence.kind}}, confidence {{evidence.confidence}})
 
 ### 🟠 MAJOR
 <!-- idem -->
@@ -38,7 +43,7 @@
 - angular-architecture-reviewer — {{N_R_ARCH}} findings
 - angular-performance-reviewer — {{N_R_PERF}} findings
 - angular-a11y-error-reviewer — {{N_R_A11Y_ERR}} findings
-- project-compliance-reviewer — {{N_R_PROJ}} findings *(si R-PROJ actif)*
+- project-compliance-reviewer — {{N_R_PROJ}} findings *(si actif, prefix `{{RULE_PREFIX}}`)*
 
 ## Validation empirique (Playwright MCP)
 <!--
@@ -49,7 +54,7 @@ Format suggéré :
 - ✅ Navigation vers http://localhost:4200 — OK
 - ✅ Snapshot ARIA capturé — pas de violation a11y runtime
 - ✅ Resize 1280→700 — layout conserve les contraintes attendues
-- ❌ Attribut `id` manquant sur l'élément `.event` #3 — finding R-PROJ-001 promu BLOCKER
+- ❌ Contrainte projet violée à la mesure — finding {{RULE_PREFIX}}-NNN promu BLOCKER
 
 Suite Playwright versionnée (si présente) :
 - ✅ tests/foo.spec.ts (5 tests, 5 passed)
@@ -60,12 +65,12 @@ Suite Playwright versionnée (si présente) :
 {{TARGET_DESCRIPTION}} — {{N_FILES}} fichier(s) modifié(s)
 
 <!--
-Règles de verdict :
-- ≥ 1 BLOCKER R-PROJ          → REQUEST_CHANGES (non-conformité projet)
-- ≥ 1 BLOCKER (tous prefixes) → REQUEST_CHANGES
-- ≥ 3 MAJOR                   → REQUEST_CHANGES
-- 0 finding & 0 INFO          → APPROVE
-- sinon                       → COMMENT
+Règles de verdict (générique — adaptables par variante de skill) :
+- ≥ 1 BLOCKER {{RULE_PREFIX}}        → REQUEST_CHANGES (non-conformité projet)
+- ≥ 1 BLOCKER (tous prefixes)        → REQUEST_CHANGES
+- ≥ 3 MAJOR                          → REQUEST_CHANGES
+- 0 finding & 0 INFO                 → APPROVE
+- sinon                              → COMMENT
 
 Si une catégorie est vide, retirer la section correspondante (ne pas afficher "aucun").
 -->
