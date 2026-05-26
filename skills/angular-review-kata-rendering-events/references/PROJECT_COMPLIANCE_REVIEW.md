@@ -15,6 +15,7 @@ applies_to:
 severity_levels: [BLOCKER, MAJOR, MINOR, INFO]
 output_format: json
 parallel_safe: true
+brief_source: README.md  # path relatif au project-root du repo reviewé. Source canonique RFC2119 du kata. Défaut si absent : README.md.
 sources:
   - README.md
   - https://microformats.org/wiki/rfc-2119-fr
@@ -183,19 +184,24 @@ L'agent doit :
 
 ### R-KATA-013 — JS / TS moderne, lisibilité
 
-- **Sévérité** : 🔵 INFO (peut être 🟡 MINOR si lisibilité notoirement compromise)
+- **Sévérité** : déterministe selon le calcul ci-dessous (🟡 MINOR ou 🔵 INFO — jamais ambigu run-to-run).
 - **Référence README, RFC2119** : « Le projet `DEVRAIT` être implémenté en JS moderne ES6 » ; « Le projet `PEUT` être implémenté en Typescript » ; « Les informations `DEVRAIENT` être facilement lisibles et agréables à l'œil ».
 - **Quoi vérifier — code moderne** : usage cohérent de `const`/`let`, destructuring, arrow functions, signaux Angular (`signal`, `computed`, `input`), nouveau control flow (`@for`, `@if`), absence de `var`, absence d'`any` non justifié.
-- **Quoi vérifier — lisibilité visuelle (densité texte vs hauteur d'évènement)** :
-  - Lire l'input typique (ex. `src/assets/input.json`) et identifier la durée la plus courte (ex. event 3 = 10 min).
-  - Calculer `height_pct = duration / 720 * 100` (oracle §4). Pour 10 min : 1.4 % → ~10px sur viewport 720px.
-  - Vérifier le template du composant événement : combien de lignes de texte affichées ? `{{ event.id }}` seul tient en 1 ligne. `Event {{ id }}, {{ start }} - {{ endTime }}` (~25 caractères) ne tient pas dans 10px de hauteur sans overflow.
-  - **Pattern à flag** : événements courts (≤ 30 min ⇒ height ≤ ~30px) avec plus que `event.id` rendu en texte, sans `overflow: hidden + text-overflow: ellipsis` ni tooltip. Sévérité : 🟡 MINOR si overflow visible, 🔵 INFO sinon.
+- **Quoi vérifier — lisibilité visuelle (procédure déterministe)** :
+  1. **Identifier l'évènement le plus court** dans l'input typique (ex. `src/assets/input.json`). Soit `duration_min` sa durée.
+  2. **Calculer `event_height_px`** : sur la viewport de référence `1280×720`, `event_height_px = (duration_min / 720) × 720 = duration_min`. (Le container couvre 720px de viewport selon R-KATA-008.) Sur 1200px container : `event_height_px = duration_min × 1200/720 ≈ duration_min × 1.67`.
+  3. **Compter `n_rendered_lines`** : nombre de fragments dynamiques distincts dans le template event. `{{ event.id }}` seul = 1 ligne. `Event {{ id }}, {{ start }} - {{ endTime }}` (label + 2 fragments horaires) = 1-2 lignes selon wrap.
+  4. **Lire `line_height_px`** depuis les classes Tailwind / CSS. Défauts : `text-xs` ≈ 12px, `text-sm` ≈ 14px, `text-base` ≈ 16px. Si non mesurable, défaut conservateur 14px.
+  5. **Calculer `text_required_px = n_rendered_lines × line_height_px`**.
+  6. **Calculer la règle de sévérité** :
+     - Si `event_height_px < text_required_px` ET (pas de `text-overflow: ellipsis` sur la div event) ET (pas de `[title]` tooltip avec l'info complète) → **🟡 MINOR** (information utile silencieusement clipped sans indicateur).
+     - Sinon → **🔵 INFO** (lisible OU clip indicateur présent OU texte ≤ event).
+- **Évident exemple chiffré** : input `src/assets/input.json` du kata `web-front-rendering-event`, event id=3 duration=10min, template `Event {{id}}, {{start}} - {{endTime}}`, classe `text-xs overflow-hidden`. → `event_height_px = 10` ; `n_rendered_lines = 2` (le label tient sur 1 ligne, le range tient sur 1 ligne après wrap) ; `line_height_px = 12` ; `text_required_px = 24` ; `24 > 10` ET pas d'ellipsis ET pas de tooltip → **MINOR**.
 - **Pattern à flag — code** :
   - `var` ou IIFE ;
   - `function` traditionnelles dans des méthodes de composant ;
   - `any` non commenté en TypeScript ;
-  - Mise en page illisible ou densité d'information trop forte sur la `div` d'évènement (cf. point lisibilité ci-dessus).
+  - Mise en page illisible ou densité d'information trop forte sur la `div` d'évènement (cf. procédure de lisibilité ci-dessus).
 
 ---
 

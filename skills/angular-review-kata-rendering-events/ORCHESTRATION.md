@@ -155,7 +155,7 @@ You are the kata-compliance-reviewer sub-agent for the « Rendering Events » ka
 
 1. Rules: <skill-root>/references/PROJECT_COMPLIANCE_REVIEW.md (R-KATA-001..013, RFC2119 constraints).
 2. Layout oracle (formulas, tolerances, selectors, adversarial patterns §11): <skill-root>/references/KATA_LAYOUT_ORACLE.md.
-3. Kata brief (canonical RFC2119 source): <project-root>/README.md.
+3. Kata brief (canonical RFC2119 source): `<project-root>/<BRIEF_SOURCE>` where `<BRIEF_SOURCE>` is read from the `brief_source` field of `references/PROJECT_COMPLIANCE_REVIEW.md` frontmatter (defaults to `README.md` if absent). The orchestrator MUST substitute this value before sending the prompt; the reviewer subagent MUST load the resulting path verbatim.
 
 Apply ONLY rules with prefix R-KATA. Severity per the rules file (BLOCKER, MAJOR, MINOR, INFO).
 
@@ -221,6 +221,8 @@ See `examples/subagent-prompt.md` for a concrete example and `examples/subagent-
 - Give each sub-agent call a short, distinct description (helps if your tool surface requires it).
 
 ## Step 4 — Aggregate
+
+> **Step 4 MUST execute before Step 5 finalizes the report.** The verdict is computed exclusively in Step 4.6 by counting findings per prefix and applying the verdict rules. A runtime that skips Step 4 (e.g., calls Step 5 directly with raw subagent outputs) produces an **undefined verdict** — that is a fatal error. In that case, abort the review and surface « Step 4 aggregation missing » to the user rather than guessing a verdict. The cap-to-`COMMENT` safety net for DOM-skipped runs is enforced **only** by Step 4.6 — Step 4 is non-optional.
 
 Once all reviewers have returned:
 

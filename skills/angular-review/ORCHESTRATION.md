@@ -147,6 +147,8 @@ See `examples/subagent-prompt.md` for a concrete example and `examples/subagent-
 
 ## Step 4 — Aggregate
 
+> **Step 4 MUST execute before Step 5 finalizes the report.** The verdict is computed exclusively in Step 4.6 by counting findings per prefix and applying the verdict rules. A runtime that skips Step 4 (e.g., calls Step 5 directly with raw subagent outputs) produces an **undefined verdict** — that is a fatal error. In that case, abort the review and surface « Step 4 aggregation missing » to the user rather than guessing a verdict.
+
 Once all reviewers have returned:
 
 1. **Parse** each response as JSON. Parse failures → warning + drop those findings.
