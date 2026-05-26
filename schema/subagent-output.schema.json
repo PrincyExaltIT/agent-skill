@@ -30,13 +30,13 @@
       "properties": {
         "ruleId": {
           "type": "string",
-          "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*-\\d{1,4}$",
+          "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*-\\d+$",
           "description": "Rule identifier, prefix+number (e.g. R-SEC-003, R-KATA-001, R-RUNTIME-12)."
         },
         "severity": {
           "type": "string",
           "enum": ["BLOCKER", "MAJOR", "MINOR", "INFO"],
-          "description": "Closed set. Verdict computation in ORCHESTRATION.md Step 4.6 depends on these exact values."
+          "description": "Closed set. The orchestrator's aggregation step relies on these exact values for verdict computation."
         },
         "domain": {
           "type": "string",
