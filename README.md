@@ -86,14 +86,25 @@ Manifest shape is documented in [`forgent`'s README](https://github.com/PrincyEx
 
 ## Capability matrix per provider
 
-| Step | Claude Code | GitHub Copilot | OpenAI Codex |
-|---|---|---|---|
-| 1. Read git diff | `Bash` | `runCommands` | shell |
-| 2. Glob references | `Glob` | `search`/`codebase` | shell/builtin |
-| 3. Run reviewers in parallel | ✅ `Agent` × N | ✅ `runSubagent` / `/fleet` | ✅ native `subagents` |
-| 4. Aggregate findings | inline | inline | inline |
-| 5. Write report | `Write` | `editFiles` | apply-patch |
-| 6. Playwright MCP | `mcp__playwright__*` | `#playwright` | `mcp_playwright_*` |
+| Step | Claude Code | GitHub Copilot | OpenAI Codex | Cursor | Status |
+|---|---|---|---|---|---|
+| 1. Read git diff | `Bash` | `runCommands` | shell | Composer terminal | stable ✓ |
+| 2. Glob references | `Glob` | `search`/`codebase` | shell/builtin | `@` refs / grep | stable ✓ |
+| 3. Run reviewers in parallel | ✅ `Agent` × N | ✅ `runSubagent`¹ / `/fleet` | ✅ native `subagents` | ⚠ sequential fallback² | partial ⊘ |
+| 4. Aggregate findings | inline | inline | inline | inline | stable ✓ |
+| 5. Write report | `Write` | `editFiles` | apply-patch | Composer write | stable ✓ |
+| 6. Playwright MCP | `mcp__playwright__*` | `#playwright` | `mcp_playwright_*` | `.cursor/mcp.json` | optional ◌ |
+
+¹ Available in GitHub Copilot Chat since the Jan 2026 update (`runSubagent` API / `/fleet` slash command in Copilot CLI).
+² Cursor has no native parallel sub-agent dispatch — the orchestrator runs reviewers sequentially in one Composer session; wall-clock is N× longer, findings are identical.
+
+> **Status legend** — ✓ stable: behaves consistently across all four providers · ⊘ partial: one provider needs a documented fallback · ◌ optional: silently skipped when the MCP server isn't registered. **Capability snapshot as of 2026-05** — runtime tooling evolves; verify against your provider's current docs.
+
+**Provider tooling references:**
+- Claude Code: <https://docs.claude.com/en/docs/claude-code>
+- GitHub Copilot Chat (subagents): <https://docs.github.com/copilot>
+- OpenAI Codex CLI: <https://github.com/openai/codex>
+- Cursor (Composer / MCP): <https://docs.cursor.com>
 
 ## License
 
