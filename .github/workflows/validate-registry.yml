@@ -1,0 +1,17 @@
+name: validate-registry
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate registry manifest with forgent
+        run: npx --yes forgent@0.2.0 validate-registry --registry .
