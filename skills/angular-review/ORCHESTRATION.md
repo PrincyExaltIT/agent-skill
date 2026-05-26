@@ -215,8 +215,8 @@ Map failures to findings (prefix `R-RUNTIME`, or `R-PROJ` if the suite checks a 
 
 - **Source code READ-ONLY**: no edits/writes to application source. No commits, no push. Only allowed writes: the markdown report under `<skill-root>/reports/` and Playwright artefacts under `playwright-report/`.
 - **No auto-fix**: only list findings.
-- **No network** beyond `gh pr diff` for PR targets and local MCP calls to a headless browser. Guidelines are pre-compiled locally.
-- **Confidentiality**: never send the diff or DOM snapshots to an external service.
+- **Skill-level network scope**: the skill itself issues no outbound calls beyond `gh pr diff` (GitHub API for PR targets) and local MCP calls to a headless browser. Guidelines are pre-compiled locally.
+- **Privacy model — disclosure**: the **AI runtime** executing this skill (Claude Code, GitHub Copilot, OpenAI Codex CLI, Cursor) does send diff content, file context, and intermediate reasoning to its provider according to that runtime's data policy. This is outside the skill's control. **Do not run this skill on confidential code without your organisation's AI usage policy validated for the chosen runtime.**
 
 ## Tips
 
