@@ -82,7 +82,7 @@ For Copilot (`.vscode/mcp.json`), Codex (`~/.codex/config.toml`), or project-loc
 2. Append an entry to `registry.json` with the file manifest.
 3. Open a PR.
 
-Manifest shape is documented in [`forgent`'s README](https://github.com/PrincyExaltIT/forgent#manifest-shape).
+Manifest shape is documented in [`forgent`'s README](https://github.com/PrincyExaltIT/forgent#manifest-shape). This registry follows the [forgent registry schema](https://raw.githubusercontent.com/PrincyExaltIT/forgent/main/schema/registry.schema.json) — current registry version: `0.1.0`.
 
 ## Capability matrix per provider
 
