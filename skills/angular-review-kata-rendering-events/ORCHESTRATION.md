@@ -115,6 +115,7 @@ Apply ONLY rules with prefix <RULE_PREFIX>. Severity levels: BLOCKER, MAJOR, MIN
 Return a single JSON object — NO prose, NO markdown:
 
 {
+  "$schema": "https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/main/schema/subagent-output.schema.json",
   "agent": "<REVIEWER_NAME>",
   "findings": [
     {
@@ -131,10 +132,10 @@ Return a single JSON object — NO prose, NO markdown:
   ]
 }
 
-If no findings: {"agent": "<REVIEWER_NAME>", "findings": []}
+If no findings: {"$schema": "...", "agent": "<REVIEWER_NAME>", "findings": []}
 ```
 
-See `examples/subagent-prompt.md` for a concrete example and `examples/subagent-output.json` for the expected output shape.
+See `examples/subagent-prompt.md` for a concrete example and `examples/subagent-output.json` for the expected output shape. The contract is formalised in [`schema/subagent-output.schema.json`](https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/main/schema/subagent-output.schema.json) (JSON Schema draft 2020-12): reviewers MUST emit objects valid against it; the aggregator MAY drop findings that fail validation (Step 4.1).
 
 **Guardrails**:
 - If the diff exceeds 50 KB for a reviewer → split it into file packs and run multiple parallel invocations of the same reviewer.

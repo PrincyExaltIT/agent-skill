@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/main/schema/subagent-output.schema.json",
+  "title": "Reviewer subagent output",
+  "description": "Shape returned by a reviewer subagent inside an agent-skill review (angular-review and variants). See each skill's ORCHESTRATION.md Step 3 for the prompt that produces this.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["agent", "findings"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URI of this schema (optional, useful for editor autocomplete)."
+    },
+    "agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the reviewer subagent that produced this output (e.g. angular-security-reviewer)."
+    },
+    "findings": {
+      "type": "array",
+      "description": "List of findings. Empty array means the reviewer found no issues in its scope.",
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ruleId", "severity", "domain", "file", "line", "snippet", "message", "suggestion", "source"],
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*-\\d{1,4}$",
+          "description": "Rule identifier, prefix+number (e.g. R-SEC-003, R-KATA-001, R-RUNTIME-12)."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["BLOCKER", "MAJOR", "MINOR", "INFO"],
+          "description": "Closed set. Verdict computation in ORCHESTRATION.md Step 4.6 depends on these exact values."
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Free-form domain tag (e.g. security, architecture, performance, a11y, project)."
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repo-relative path to the offending file."
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based line number in the file."
+        },
+        "snippet": {
+          "type": "string",
+          "description": "Short excerpt of the offending line (one line, no surrounding context)."
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What is wrong, in human-readable prose."
+        },
+        "suggestion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "How to fix it, in human-readable prose."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Pointer to the canonical reference (angular.dev URL, internal RFC, kata brief, etc.)."
+        }
+      }
+    }
+  }
+}

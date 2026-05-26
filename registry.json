@@ -1,20 +1,20 @@
 {
   "$schema": "https://raw.githubusercontent.com/PrincyExaltIT/forgent/main/schema/registry.schema.json",
   "name": "agent-skill",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "homepage": "https://github.com/PrincyExaltIT/agent-skill",
   "items": [
     {
       "name": "angular-review",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Multi-reviewer Angular code audit (security, architecture, performance, a11y/errors, optional project-compliance) on the current branch or a specified diff, with optional empirical DOM validation via the Playwright MCP server.",
       "tags": ["angular", "code-review", "quality", "playwright"],
       "files": [
         { "path": "SKILL.md", "type": "skill:main", "sha256": "d095f575d3add6cccb319cde11e4f3429b9fe78a58bffbbe5c6d05aa88a265c9" },
-        { "path": "ORCHESTRATION.md", "type": "skill:doc", "sha256": "df5de628b7a5fb0589296a194270bcccb7f14f78a8f10f19467a44778c4eac04" },
+        { "path": "ORCHESTRATION.md", "type": "skill:doc", "sha256": "ee9c6ef5d6c1fd2c46dcf6a64e3535c0aea3b2b4c926558eaa951dfae88483ce" },
         { "path": "angular-review.codex.md", "type": "skill:codex", "sha256": "807c1dd13d8f64979239684acab09e6a8cdaf66bc7729d8f9ee0cce46fe0028b" },
         { "path": "angular-review.prompt.md", "type": "skill:copilot", "sha256": "9047da1f9e2a6717682570ac18a757d3949965ee3c0569c239713db4ef0c8319" },
-        { "path": "examples/subagent-output.json", "type": "skill:example", "sha256": "2c0bdbde27b40cdaa33c16922337383c35a60d7cd473836ae605b5a8ee11c7df" },
+        { "path": "examples/subagent-output.json", "type": "skill:example", "sha256": "288e5773c2962b5af358608ec18ba847edb0ca3eca75fc19c3ffc164d1f25a72" },
         { "path": "examples/subagent-prompt.md", "type": "skill:example", "sha256": "cb9bef0547819ac4e5d951f869ab4ebb71be362398a34a37373ede2b9e8fb3d4" },
         { "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md", "type": "skill:reference", "sha256": "a15bde216960dec7805d283b80d8557ec0ce35f4227dcceebed305ff2f575c6a" },
         { "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md", "type": "skill:reference", "sha256": "ad15a354881bd0510f2f8acdc71bdbbbe5ee409ce9d88af5d67b86b832eaaf22" },
@@ -26,15 +26,15 @@
     },
     {
       "name": "angular-review-kata-rendering-events",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Variant of angular-review pre-wired for the R-KATA Rendering Events brief: embeds R-KATA-001..013 rules (positioning time-to-pixels, overlap, responsiveness). Otherwise identical to angular-review.",
       "tags": ["angular", "code-review", "quality", "playwright", "kata"],
       "files": [
         { "path": "SKILL.md", "type": "skill:main", "sha256": "5c5f3ec49f78925733ff2828012f7d8663b46efbbbef795093be837813d5f3e8" },
-        { "path": "ORCHESTRATION.md", "type": "skill:doc", "sha256": "df5de628b7a5fb0589296a194270bcccb7f14f78a8f10f19467a44778c4eac04" },
+        { "path": "ORCHESTRATION.md", "type": "skill:doc", "sha256": "ee9c6ef5d6c1fd2c46dcf6a64e3535c0aea3b2b4c926558eaa951dfae88483ce" },
         { "path": "angular-review-kata-rendering-events.codex.md", "type": "skill:codex", "sha256": "62a249f3b71a095f716daac7203455d09ac4e0b933e3789415e17e678c8d4e6f" },
         { "path": "angular-review-kata-rendering-events.prompt.md", "type": "skill:copilot", "sha256": "9e3a7796935d7dad440dd216be480f437a9d16faddd8627b301e953e27eeeef8" },
-        { "path": "examples/subagent-output.json", "type": "skill:example", "sha256": "2c0bdbde27b40cdaa33c16922337383c35a60d7cd473836ae605b5a8ee11c7df" },
+        { "path": "examples/subagent-output.json", "type": "skill:example", "sha256": "288e5773c2962b5af358608ec18ba847edb0ca3eca75fc19c3ffc164d1f25a72" },
         { "path": "examples/subagent-prompt.md", "type": "skill:example", "sha256": "cb9bef0547819ac4e5d951f869ab4ebb71be362398a34a37373ede2b9e8fb3d4" },
         { "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md", "type": "skill:reference", "sha256": "a15bde216960dec7805d283b80d8557ec0ce35f4227dcceebed305ff2f575c6a" },
         { "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md", "type": "skill:reference", "sha256": "ad15a354881bd0510f2f8acdc71bdbbbe5ee409ce9d88af5d67b86b832eaaf22" },

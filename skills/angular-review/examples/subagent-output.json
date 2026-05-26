@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/main/schema/subagent-output.schema.json",
   "agent": "angular-security-reviewer",
   "findings": [
     {
