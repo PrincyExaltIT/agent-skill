@@ -76,13 +76,116 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest
 
 For Copilot (`.vscode/mcp.json`), Codex (`~/.codex/config.toml`), or project-local `.mcp.json`, see the [Playwright MCP docs](https://github.com/microsoft/playwright-mcp#configuration).
 
-## Author a new skill
+## Contribute
 
-1. Add `skills/<your-skill>/` containing `SKILL.md` (Claude), `<your-skill>.prompt.md` (Copilot), `<your-skill>.codex.md` (Codex), plus `ORCHESTRATION.md` and any references/templates/examples.
-2. Append an entry to `registry.json` with the file manifest.
-3. Open a PR.
+The registry is a content repo: a `registry.json` manifest plus one folder per skill under `skills/`. Contributions land via PR.
 
-Manifest shape is documented in [`forgent`'s README](https://github.com/PrincyExaltIT/forgent#manifest-shape). This registry follows the [forgent registry schema](https://raw.githubusercontent.com/PrincyExaltIT/forgent/main/schema/registry.schema.json). The current version of this registry is declared in [`registry.json`](./registry.json).
+### Prerequisites
+
+```bash
+npm install -g forgent     # provides validate-registry, hash-files, validate-skill, verify
+```
+
+CI runs `forgent validate-registry` on every PR (see [`.github/workflows/validate-registry.yml`](./.github/workflows/validate-registry.yml)). Run the same command locally to fail-fast before pushing.
+
+### Add a new skill
+
+1. **Fork & clone** `PrincyExaltIT/agent-skill`, then create a branch:
+   ```bash
+   git checkout -b feat/<your-skill>
+   ```
+
+2. **Scaffold the skill folder** at `skills/<your-skill>/`:
+   ```
+   skills/<your-skill>/
+   ├─ SKILL.md                       required — Claude entry point
+   ├─ ORCHESTRATION.md               required — provider-agnostic logic (single source of truth)
+   ├─ <your-skill>.prompt.md         optional — Copilot variant
+   ├─ <your-skill>.codex.md          optional — Codex variant
+   ├─ references/                    optional — rules/docs the skill reads
+   ├─ templates/                     optional — output templates (e.g. REPORT.md)
+   └─ examples/                      optional — sample inputs/outputs
+   ```
+
+   `SKILL.md` needs Claude-style frontmatter:
+   ```yaml
+   ---
+   name: <your-skill>
+   description: One sentence describing when to invoke this skill. Claude reads this to decide whether the skill applies.
+   ---
+
+   # Skill body — markdown
+   ```
+
+   The simplest way to start is to copy [`skills/angular-review/`](./skills/angular-review/) and edit.
+
+3. **Register the skill** in [`registry.json`](./registry.json) by appending an entry to `items`:
+   ```json
+   {
+     "name": "<your-skill>",
+     "version": "0.1.0",
+     "description": "Same trigger sentence as SKILL.md, or a richer version.",
+     "tags": ["tag1", "tag2"],
+     "files": [
+       { "path": "SKILL.md", "type": "skill:main", "sha256": "..." },
+       { "path": "ORCHESTRATION.md", "type": "skill:doc", "sha256": "..." }
+     ]
+   }
+   ```
+
+   Bump the top-level `version` in `registry.json` too (semver). Allowed `files[].type` values: `skill:main`, `skill:doc`, `skill:copilot`, `skill:codex`, `skill:reference`, `skill:template`, `skill:example`. Full schema: [`forgent`'s manifest shape](https://github.com/PrincyExaltIT/forgent#manifest-shape).
+
+4. **Compute SHA256 hashes** — `forgent` reads `registry.json`, computes hashes for every declared file, and reports mismatches:
+   ```bash
+   forgent hash-files --registry .
+   ```
+   Paste the correct hashes into your `registry.json` entry.
+
+5. **Validate locally** — same checks CI runs:
+   ```bash
+   forgent validate-registry --registry .
+   ```
+   If your skill ships JSON examples with a `$schema` field, also run:
+   ```bash
+   forgent validate-skill <your-skill> --registry .
+   ```
+
+6. **Smoke-test end-to-end** by installing your skill from the local registry into a throwaway location:
+   ```bash
+   forgent add --provider claude --registry . --dest /tmp/test-install <your-skill>
+   forgent verify --provider claude --dest /tmp/test-install
+   ```
+   `verify` re-hashes every installed file against the lockfile — confirms your manifest hashes match the actual file content.
+
+7. **Commit and open a PR** — [Conventional Commits](https://www.conventionalcommits.org/):
+   ```bash
+   git add skills/<your-skill>/ registry.json
+   git commit -m "feat(skills): add <your-skill>"
+   git push origin feat/<your-skill>
+   ```
+   Open the PR against `PrincyExaltIT/agent-skill:main`. CI must be green to merge.
+
+### Modify an existing skill
+
+Same flow, fewer steps:
+
+1. Branch: `git checkout -b fix/<skill>-<what-changed>` (or `feat/...` for new behaviour).
+2. Edit files under `skills/<name>/`.
+3. **Bump versions** in `registry.json`:
+   - the affected `items[].version` (semver — patch for fixes, minor for additive, major for breaking).
+   - the top-level `version`.
+4. Re-run **`forgent hash-files --registry .`** — paste the new SHA256s for every file you touched.
+5. Re-run **`forgent validate-registry --registry .`**.
+6. Smoke-test as in step 6 above.
+7. Commit and PR.
+
+Forgetting to bump SHA256s after editing a file is the most common review nit — `forgent hash-files` catches it.
+
+### Tips
+
+- The `$schema` field at the top of `registry.json` enables JSON-schema autocomplete and inline validation in VS Code / IntelliJ — keep it.
+- Provider variants (`<name>.prompt.md`, `<name>.codex.md`) are optional. If absent, `forgent` installs `SKILL.md` for every provider; you adjust the frontmatter post-install (see [forgent's caveats](https://github.com/PrincyExaltIT/forgent#caveat-frontmatter)).
+- `forgent doctor` diagnoses common config issues if `add`/`verify` behave unexpectedly during your smoke test.
 
 ## Capability matrix per provider
 
