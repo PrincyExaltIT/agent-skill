@@ -6,20 +6,19 @@
 
 `angular-review` 2.x is a **folder skill**: `SKILL.md`, its rules, and the Node scripts it runs travel together. Install the whole folder.
 
-**Claude Code** (user level, `~/.claude/skills/`):
+**For the whole team** — in the project, for every harness (needs forgent ≥ 1.1):
 
 ```bash
-npx forgent add --provider claude angular-review
+npx forgent add --provider agents,claude --project angular-review
+# .agents/skills: Codex, GitHub Copilot, Cursor, Gemini CLI, OpenCode, Kilo Code, your team's own tool…
+# .claude/skills: Claude Code, Continue
 ```
 
-**Any other Agent Skills harness** — Codex, GitHub Copilot, Cursor, Gemini CLI, OpenCode, Kilo Code, your team's own tool… — install the folder into the project, where they look for skills:
+Commit both folders and `forgent.lock.json`; `npx forgent verify` (in CI too) checks that nobody changed the installed files.
 
-```bash
-npx forgent add --provider claude --dest .agents/skills angular-review   # Codex, Copilot, Cursor, Gemini CLI, OpenCode, Kilo Code…
-npx forgent add --provider claude --dest .claude/skills angular-review   # Claude Code, Continue
-```
+**Just for you**: `npx forgent add --provider claude angular-review` (`~/.claude/skills`) or `--provider agents --user` (`~/.agents/skills`).
 
-`--provider claude` only selects forgent's *folder* layout; the files are the same for every harness. forgent's `copilot`, `codex` and `cursor` providers write a single file, which drops the scripts: avoid them for this skill.
+forgent's `copilot`, `codex` and `cursor` providers write a single file, which drops the scripts: avoid them for this skill (forgent warns you).
 
 Requirements: git and Node.js 18+ (the scripts have no dependencies). Then ask your agent to review, or invoke the skill by name: `/angular-review` (Claude Code, Copilot, Cursor…), `$angular-review` (Codex).
 
