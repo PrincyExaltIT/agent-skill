@@ -6,6 +6,8 @@
 
 `angular-review` 2.x is a **folder skill**: `SKILL.md`, its rules, and the Node scripts it runs travel together. Install the whole folder.
 
+**Read it first**: `npx forgent show angular-review` prints `SKILL.md` and the file list, scripts flagged (`--all` prints every file). Nothing is installed.
+
 **For the whole team** — in the project, for every harness (needs forgent ≥ 1.1):
 
 ```bash
@@ -17,7 +19,7 @@ npx forgent add --provider agents,claude --project angular-review
 npx forgent add --provider agents,claude --project angular-review review-fix pr-handoff skill-smith
 ```
 
-Commit both folders and `forgent.lock.json`; `npx forgent verify` (in CI too) checks that nobody changed the installed files.
+Commit both folders and `forgent.lock.json`; `npx forgent verify` (in CI too) checks that nobody changed the installed files, and `npx forgent outdated` / `update` keep them current without overwriting your own edits (forgent ≥ 1.2).
 
 **Just for you**: `npx forgent add --provider claude angular-review` (`~/.claude/skills`) or `--provider agents --user` (`~/.agents/skills`).
 
