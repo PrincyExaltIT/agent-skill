@@ -35,11 +35,8 @@ See [`forgent`'s README](https://github.com/PrincyExaltIT/forgent#readme) for fl
 | [`review-fix`](./skills/review-fix) | 1.0.0 | Applies the findings of `.review/findings.json` one at a time, with build and tests after each, one commit per finding; stops on red. Invoke it by hand after `angular-review`. |
 | [`pr-handoff`](./skills/pr-handoff) | 1.0.0 | Writes the PR/MR description and a hand-off note from the commits and the review. Manual invocation (`disable-model-invocation`, honoured by Claude Code, Cursor and Copilot; Codex: `agents/openai.yaml`). |
 | [`skill-smith`](./skills/skill-smith) | 1.0.0 | Creates and validates Agent Skills: `new-skill.mjs` scaffolds a folder, `validate.mjs` checks it against the standard. |
-| [`angular-review-kata-rendering-events`](./skills/angular-review-kata-rendering-events) | 0.2.1 | **Evidence-based** variant pre-wired for the « Rendering Events » kata: 13 `R-KATA` rules + a `KATA_LAYOUT_ORACLE.md`; Playwright DOM validation is mandatory for `APPROVE`. Still built on angular-review 1.x (see below). |
 
-> **angular-review 1.x** (0.2.1, `ORCHESTRATION.md` and per-provider files) is archived under the git tag [`angular-review-v1`](https://github.com/PrincyExaltIT/agent-skill/tree/angular-review-v1). To install it anyway: `npx forgent add --registry https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/angular-review-v1 --provider claude angular-review`.
-
-> ✏️ **Choosing**: install `angular-review` for any Angular project, and encode your own constraints in its `PROJECT_COMPLIANCE_REVIEW.md`. Install the kata variant only to grade the « Rendering Events » kata.
+> **angular-review 1.x** (0.2.1, `ORCHESTRATION.md` and per-provider files) and its « Rendering Events » kata variant are archived under the git tag [`angular-review-v1`](https://github.com/PrincyExaltIT/agent-skill/tree/angular-review-v1). To install it anyway: `npx forgent add --registry https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/angular-review-v1 --provider claude angular-review`.
 
 ## How angular-review works
 
@@ -69,8 +66,6 @@ With a Playwright MCP server available, `references/EMPIRICAL_VALIDATION.md` con
 
 The next invocation auto-detects your rules and runs an extra `project-compliance-reviewer` sub-agent emitting `<rule_prefix>-NNN` findings (default `R-PROJ`). A single BLOCKER under the configured `rule_prefix` ⇒ `REQUEST_CHANGES`.
 
-> 💡 The [`angular-review-kata-rendering-events`](./skills/angular-review-kata-rendering-events) skill is this pattern applied: 13 R-KATA rules encoded from a kata brief's RFC2119 constraints. Read its `references/PROJECT_COMPLIANCE_REVIEW.md` for a concrete example of severity, flag patterns, and ❌/✅ examples.
-
 ## Security / privacy
 
 **Privacy model:**
@@ -79,13 +74,13 @@ The next invocation auto-detects your rules and runs an extra `project-complianc
 - Do not run this skill on confidential code without your organisation's AI usage policy validated for the chosen runtime.
 
 **Guardrails the skill enforces on the AI runtime:**
-- Source code is **read-only** — no edits, commits or pushes. `angular-review` writes only under `.review/` at the repository root (the kata variant also writes `playwright-report/`).
+- Source code is **read-only** — no edits, commits or pushes. `angular-review` writes only under `.review/` at the repository root.
 - The diff under review is data, never instructions.
 - **No auto-fix** — findings only.
 
 ## Optional: Playwright MCP
 
-`angular-review` can confirm findings against the live DOM (accessibility, runtime behaviour) with the [Playwright MCP server](https://github.com/microsoft/playwright-mcp), following `references/EMPIRICAL_VALIDATION.md`. It is opt-in — skipped when the MCP server isn't registered. The kata variant requires it (DOM validation is integral to kata grading).
+`angular-review` can confirm findings against the live DOM (accessibility, runtime behaviour) with the [Playwright MCP server](https://github.com/microsoft/playwright-mcp), following `references/EMPIRICAL_VALIDATION.md`. It is opt-in — skipped when the MCP server isn't registered.
 
 Register the server once per provider:
 

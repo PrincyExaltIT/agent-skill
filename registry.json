@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/PrincyExaltIT/forgent/master/schema/registry.schema.json",
   "name": "agent-skill",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "homepage": "https://github.com/PrincyExaltIT/agent-skill",
   "items": [
     {
@@ -111,86 +111,6 @@
         {
           "path": "scripts/scope.mjs",
           "sha256": "6daf25efde675a726b96f9ccb39d096415990d0a08da84eb006964bbb66242cc"
-        }
-      ]
-    },
-    {
-      "name": "angular-review-kata-rendering-events",
-      "version": "0.2.1",
-      "description": "Variant of angular-review pre-wired for the R-KATA Rendering Events brief: embeds R-KATA-001..013 rules (positioning time-to-pixels, overlap, responsiveness) plus the KATA_LAYOUT_ORACLE.md (formulas, tolerances, DOM measurement procedure). Evidence-based: Step 6 Playwright DOM validation is mandatory for APPROVE.",
-      "tags": [
-        "angular",
-        "code-review",
-        "quality",
-        "playwright",
-        "kata",
-        "evidence-based"
-      ],
-      "files": [
-        {
-          "path": "SKILL.md",
-          "type": "skill:main",
-          "sha256": "5c5f3ec49f78925733ff2828012f7d8663b46efbbbef795093be837813d5f3e8"
-        },
-        {
-          "path": "ORCHESTRATION.md",
-          "type": "skill:doc",
-          "sha256": "a232f20530ed9e83b92a974a9073b3a3cb64f641702938ac4d240e7acd98441b"
-        },
-        {
-          "path": "angular-review-kata-rendering-events.codex.md",
-          "type": "skill:codex",
-          "sha256": "62a249f3b71a095f716daac7203455d09ac4e0b933e3789415e17e678c8d4e6f"
-        },
-        {
-          "path": "angular-review-kata-rendering-events.prompt.md",
-          "type": "skill:copilot",
-          "sha256": "9e3a7796935d7dad440dd216be480f437a9d16faddd8627b301e953e27eeeef8"
-        },
-        {
-          "path": "examples/subagent-output.json",
-          "type": "skill:example",
-          "sha256": "511d467d44b57a25d78a1cf5fb652947bbb62450d6beaabe0df0785d0fb9a4cb"
-        },
-        {
-          "path": "examples/subagent-prompt.md",
-          "type": "skill:example",
-          "sha256": "5da98603f1ab5c763d55b19dfaf35a706494572a7ee4dcb49c66971416e4c7c9"
-        },
-        {
-          "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md",
-          "type": "skill:reference",
-          "sha256": "a15bde216960dec7805d283b80d8557ec0ce35f4227dcceebed305ff2f575c6a"
-        },
-        {
-          "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md",
-          "type": "skill:reference",
-          "sha256": "ad15a354881bd0510f2f8acdc71bdbbbe5ee409ce9d88af5d67b86b832eaaf22"
-        },
-        {
-          "path": "references/KATA_LAYOUT_ORACLE.md",
-          "type": "skill:reference",
-          "sha256": "2e9d3f7eae6cd1709de39796fcfbea54b8515a1cc3a398f0e4c527cb307b8a1d"
-        },
-        {
-          "path": "references/PERFORMANCE_REVIEW.md",
-          "type": "skill:reference",
-          "sha256": "d479ac07d03318df3a38de886b5d5b8f18dfb058c5472f1ca157a8940b6a551a"
-        },
-        {
-          "path": "references/PROJECT_COMPLIANCE_REVIEW.md",
-          "type": "skill:reference",
-          "sha256": "afad5aeb05fe918ccb6013d068afac21a18a3b3469b3b81c0d5e129b427abdab"
-        },
-        {
-          "path": "references/SECURITY_REVIEW.md",
-          "type": "skill:reference",
-          "sha256": "600c61db080db894fa606ad0ccddf1fd3c7939473e5f1b233a3e6d76c42368ea"
-        },
-        {
-          "path": "templates/REPORT.md",
-          "type": "skill:template",
-          "sha256": "9c289f36031db506bd6cb7c865218a8f5b6dd24323c7ddc51a582eb3a897fd2a"
         }
       ]
     },
