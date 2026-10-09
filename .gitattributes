@@ -13,3 +13,7 @@
 *.toml         text eol=lf
 *.yml          text eol=lf
 *.yaml         text eol=lf
+
+# Skill scripts run with node on every OS: keep them LF so their sha256 in registry.json stays stable.
+*.mjs          text eol=lf
+*.js           text eol=lf

@@ -1,6 +1,6 @@
 ---
 name: angular-performance-reviewer
-description: Audit performance Angular (lazy routes, @defer, NgOptimizedImage, SSR, OnPush, zoneless, profiling, zone pollution, slow computations).
+description: Audit performance Angular (lazy routes, @defer, NgOptimizedImage, SSR, change detection selon la version, zoneless, profiling, calculs dans les templates).
 domain: performance
 rule_prefix: R-PERF
 applies_to:
@@ -96,6 +96,8 @@ Ce document fournit à un agent reviewer LLM les règles actionnables pour audit
 - **Source** : <https://angular.dev/best-practices/performance/lazy-loaded-routes>
 
 ### R-PERF-004 — Dépendance `@defer` doit être standalone
+
+> **v2** : depuis Angular 19, tout composant est standalone par défaut ; cette règle ne concerne plus que le code qui déclare encore `standalone: false` ou des `NgModule`.
 
 - **Sévérité** : 🔴 BLOCKER
 - **Quoi vérifier** : un composant/directive/pipe utilisé dans un `@defer` doit être `standalone: true`. Sinon il reste eager.
@@ -389,25 +391,26 @@ Ce document fournit à un agent reviewer LLM les règles actionnables pour audit
   ```
 - **Source** : <https://angular.dev/best-practices/performance/ssr>
 
-### R-PERF-020 — `ChangeDetectionStrategy.OnPush` sur les composants
+### R-PERF-020 — Stratégie de détection de changement (dépend de la version)
 
-- **Sévérité** : 🟠 MAJOR
-- **Quoi vérifier** : tout composant non trivial doit déclarer `changeDetection: ChangeDetectionStrategy.OnPush`. Indispensable pour préparer la migration zoneless.
-- **Pattern à flag** : `@Component({...})` sans `changeDetection`, ou `Default` explicite.
-- **Exemple ❌** :
+- **Sévérité** : 🟠 MAJOR si Angular ≤ 21 · 🟡 MINOR si Angular ≥ 22
+- **Version** : lire `angular.onPushByDefault` dans `.review/scope.json` avant d'appliquer cette règle.
+- **Quoi vérifier** :
+  - **Angular ≤ 21** : tout composant non trivial déclare `changeDetection: ChangeDetectionStrategy.OnPush` (prépare aussi le passage zoneless).
+  - **Angular ≥ 22** : OnPush est **le défaut**. Ne jamais réclamer OnPush. Signaler à la place `ChangeDetectionStrategy.Eager` (ou l'alias déprécié `Default`) sans commentaire qui justifie ce choix.
+- **Pattern à flag** : ≤ 21 → `@Component({...})` sans `changeDetection`, ou `Default` explicite. ≥ 22 → `ChangeDetectionStrategy.Eager` / `ChangeDetectionStrategy.Default`.
+- **Exemple ❌ (≤ 21)** :
   ```ts
   @Component({ selector: 'x', template: '...' })
   export class X {}
   ```
-- **Exemple ✅** :
+- **Exemple ❌ (≥ 22)** :
   ```ts
-  @Component({
-    selector: 'x',
-    template: '...',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-  })
+  @Component({ selector: 'x', template: '...', changeDetection: ChangeDetectionStrategy.Eager })
   export class X {}
   ```
+- **Exemple ✅ (≥ 22)** : aucune option `changeDetection`, état exposé en signals.
+- **Pourquoi la règle a changé** : la v1 du skill, écrite pour Angular 20-21, classait l'absence d'OnPush en MAJOR sans condition. Sur Angular 22, elle produirait un faux positif sur chaque composant. C'est le rôle de `references/VERSION_GATES.md`.
 - **Source** : <https://angular.dev/best-practices/skipping-subtrees>
 
 ### R-PERF-021 — Mutations d'`@Input` : nouvelle référence (pas mutation in-place)
@@ -645,6 +648,8 @@ Ce document fournit à un agent reviewer LLM les règles actionnables pour audit
 
 ### R-PERF-033 — `[class.x]` / `[style.x]` plutôt que `[ngClass]` / `[ngStyle]`
 
+> **v2 — alias** : doublon de `R-ARCH-012`. Toujours rapporter sous `R-ARCH-012` (une règle = un seul identifiant).
+
 - **Sévérité** : 🟡 MINOR
 - **Quoi vérifier** : préférer les bindings de classe/style natifs aux directives `ngClass`/`ngStyle` (plus simples, plus performants).
 - **Pattern à flag** : `[ngClass]="{...}"` ou `[ngStyle]="{...}"` avec un nombre fixe de classes/styles.
@@ -657,6 +662,57 @@ Ce document fournit à un agent reviewer LLM les règles actionnables pour audit
   <div [class.admin]="isAdmin" [class.active]="isActive"></div>
   ```
 - **Source** : <https://angular.dev/style-guide>
+
+### R-PERF-034 — `<img src>` sans NgOptimizedImage
+
+- **Sévérité** : 🔵 INFO (🟡 MINOR si l'image est volumineuse ou au-dessus de la ligne de flottaison)
+- **Quoi vérifier** : une image servie par l'application avec `src`/`[src]` au lieu de `ngSrc` ne bénéficie ni du lazy-loading, ni du `srcset`, ni des avertissements de taille. Les règles R-PERF-010…012 ne voient que `ngSrc` : celle-ci couvre le cas où NgOptimizedImage n'est pas utilisé du tout.
+- **Pattern à flag** : `<img src="...">` / `<img [src]="...">` sans `ngSrc` (hors `data:` URI).
+- **Exemple ❌** :
+  ```html
+  <img src="/img/card-1.png" alt="Carte">
+  ```
+- **Exemple ✅** :
+  ```html
+  <img ngSrc="/img/card-1.png" width="320" height="480" alt="Gobelin, 7 PV">
+  ```
+- **Source** : <https://angular.dev/guide/image-optimization>
+
+### R-PERF-035 — Zoneless : état modifié hors signal dans un callback asynchrone
+
+- **Sévérité** : 🟠 MAJOR
+- **Version** : uniquement si `angular.zoneless` est vrai (défaut des nouvelles applications depuis Angular 21).
+- **Quoi vérifier** : sans zone.js, rien ne rafraîchit la vue quand un champ simple change dans `setTimeout`, `setInterval`, `.then()`, un `subscribe`, `addEventListener` ou un callback de bibliothèque. Le bug est silencieux : la vue reste figée jusqu'au prochain événement.
+- **Pattern à flag** : `this.x = ...` (champ non signal) dans un callback asynchrone d'un composant/directive.
+- **Exemple ❌** :
+  ```ts
+  status = 'idle';
+  save() { setTimeout(() => { this.status = 'saved'; }, 500); }
+  ```
+- **Exemple ✅** :
+  ```ts
+  protected readonly status = signal<'idle' | 'saved'>('idle');
+  save() { setTimeout(() => this.status.set('saved'), 500); }
+  ```
+- **Source** : <https://angular.dev/guide/zoneless>
+
+### R-PERF-036 — `@for` avec `track $index` sur une liste d'entités
+
+- **Sévérité** : 🟡 MINOR
+- **Quoi vérifier** : `track $index` convient à une liste statique de primitives ; sur des entités qui se trient, se filtrent ou s'insèrent, il recrée ou décale le DOM (focus perdu, animations rejouées, état local mélangé).
+- **Pattern à flag** : `@for (x of xs(); track $index)` quand `x` possède un identifiant.
+- **Exemple ❌** : `@for (talk of talks(); track $index) { <app-talk-card [talk]="talk" /> }`
+- **Exemple ✅** : `@for (talk of talks(); track talk.id) { <app-talk-card [talk]="talk" /> }`
+- **Source** : <https://angular.dev/guide/templates/control-flow>
+
+### R-PERF-037 — Appel de méthode avec arguments dans le template
+
+- **Sévérité** : 🟡 MINOR
+- **Quoi vérifier** : depuis les signals, `count()` dans un template est normal (lecture de signal). En revanche une **méthode avec arguments** (`format(item, 'short')`) est ré-exécutée à chaque vérification de la vue. Le scan ne peut pas distinguer tous les cas : c'est une règle de jugement.
+- **Pattern à flag** : `{{ fn(arg) }}` ou `[prop]="fn(arg)"` où `fn` fait un calcul non trivial.
+- **Exemple ❌** : `<li>{{ formatSchedule(talk, locale) }}</li>`
+- **Exemple ✅** : `computed()` dans le composant, ou pipe pur : `<li>{{ talk | schedule: locale }}</li>`
+- **Source** : <https://angular.dev/best-practices/runtime-performance>
 
 ---
 
@@ -695,40 +751,17 @@ Ce document fournit à un agent reviewer LLM les règles actionnables pour audit
 - [ ] R-PERF-031 — Pas de mutation pendant la CD
 - [ ] R-PERF-032 — `enableProfiling()` en dev
 - [ ] R-PERF-033 — `[class.x]` / `[style.x]`
+- [ ] R-PERF-034 — `ngSrc` plutôt que `src`
+- [ ] R-PERF-035 — Zoneless : état asynchrone en signal
+- [ ] R-PERF-036 — `track` sur une identité stable
+- [ ] R-PERF-037 — Pas de méthode avec arguments dans le template
 
 ---
 
-## Format des findings que doit produire l'agent reviewer
+## Format de sortie
 
-Chaque finding doit suivre ce schéma JSON :
+Le format des findings est défini **une seule fois**, dans [`REVIEWER_PROMPT.md`](REVIEWER_PROMPT.md) (champs `ruleId`, `severity`, `domain`, `file`, `line`, `snippet`, `message`, `suggestion`, `source`, `evidence`). Ne pas en inventer un autre ici : `scripts/findings.mjs merge` rejette tout finding qui ne respecte pas ce contrat.
 
-```json
-{
-  "rule_id": "R-PERF-010",
-  "severity": "BLOCKER",
-  "file": "src/app/home/home.component.html",
-  "line": 12,
-  "quote": "<img src=\"hero.jpg\" width=\"1200\" height=\"600\" />",
-  "explanation": "L'image utilise `src` au lieu de `ngSrc` ; les optimisations NgOptimizedImage ne s'appliquent pas et le navigateur télécharge avant l'évaluation.",
-  "suggestion": "Remplacer `src` par `ngSrc` et ajouter `priority` si l'image est le LCP de la page.",
-  "source": "https://angular.dev/best-practices/performance/image-optimization"
-}
-```
-
-Variante markdown acceptée :
-
-```
-- [R-PERF-010 · 🔴 BLOCKER] src/app/home/home.component.html:12
-  > <img src="hero.jpg" width="1200" height="600" />
-  Explication : `src` annule NgOptimizedImage.
-  Suggestion : remplacer par `ngSrc` + `priority` (LCP).
-  Source : https://angular.dev/best-practices/performance/image-optimization
-```
-
-**Règles de production des findings** :
-
-1. Une entrée par occurrence (ne pas grouper plusieurs lignes sous une seule entrée).
-2. Toujours citer le code (`quote`) tel qu'il apparaît dans le diff.
-3. Trier le rapport final par sévérité décroissante (BLOCKER → INFO).
-4. Si une règle ne s'applique pas (ex. pas de SSR dans le projet), la marquer `n/a` dans la checklist plutôt que de l'omettre.
-5. Ne jamais inventer un `rule_id` hors de la liste R-PERF-001…R-PERF-033.
+- Une entrée par occurrence ; toujours citer le code exact (`snippet`) : il est vérifié contre le fichier.
+- N'utiliser que des `ruleId` présents dans ce fichier (ou `R-PROJ-*` pour les règles projet).
+- Une règle qui ne s'applique pas à ce projet (version, SSR absent…) ne produit aucun finding.

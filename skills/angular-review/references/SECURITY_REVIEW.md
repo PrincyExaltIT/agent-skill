@@ -72,7 +72,9 @@ Document à charger comme contexte par un agent reviewer LLM pour auditer un dif
 
 ### R-SEC-003 — Usage non audité de `bypassSecurityTrustHtml`
 
-- **Sévérité** : 🟠 MAJOR
+> **v2 — sévérité** : la v1 classait tout usage en MAJOR. Une bio, un commentaire ou une description saisis par un utilisateur puis marqués sûrs sont une XSS stockée : BLOCKER. Le scan signale chaque bypass en BLOCKER (confiance moyenne) ; l'étape Verify rétrograde les constantes.
+
+- **Sévérité** : 🔴 BLOCKER si la valeur peut venir d'un utilisateur ou d'un tiers (XSS) · 🟠 MAJOR si c'est une constante auditée sans commentaire
 - **Quoi vérifier** : tout appel à `bypassSecurityTrustHtml(...)` sans commentaire de justification au-dessus, ou avec une valeur dont l'origine n'est pas une constante littérale ou un input statiquement vérifié.
 - **Pattern à flag** : `bypassSecurityTrustHtml\(`
 - **Exemple ❌** :
@@ -372,7 +374,7 @@ Document à charger comme contexte par un agent reviewer LLM pour auditer un dif
 
 - **Sévérité** : 🟡 MINOR
 - **Quoi vérifier** : `package.json` figeant `@angular/core` sur une version hors fenêtre LTS (Active = N, LTS = N-1). À signaler si la PR touche `package.json` sans bump.
-- **Pattern à flag** : `"@angular/core"\s*:\s*"[~^]?1[0-6]\.` (version majeure < 17 au moment de l'écriture).
+- **Pattern à flag** : version majeure de `@angular/core` hors fenêtre de support. Au 8 octobre 2026 : v22 active, v21 et v20 en LTS, ≤ 19 plus maintenues. Toujours vérifier <https://angular.dev/reference/releases> plutôt que cette date.
 - **Exemple ❌** :
   ```json
   { "dependencies": { "@angular/core": "^15.0.0" } }
@@ -443,52 +445,10 @@ Document à charger comme contexte par un agent reviewer LLM pour auditer un dif
 
 ---
 
-## Format des findings que doit produire l'agent reviewer
+## Format de sortie
 
-Chaque finding doit être un objet JSON ; à la fin, fournir aussi un résumé markdown.
+Le format des findings est défini **une seule fois**, dans [`REVIEWER_PROMPT.md`](REVIEWER_PROMPT.md) (champs `ruleId`, `severity`, `domain`, `file`, `line`, `snippet`, `message`, `suggestion`, `source`, `evidence`). Ne pas en inventer un autre ici : `scripts/findings.mjs merge` rejette tout finding qui ne respecte pas ce contrat.
 
-### Schéma JSON par finding
-
-```json
-{
-  "rule_id": "R-SEC-XXX",
-  "severity": "BLOCKER | MAJOR | MINOR | INFO",
-  "file": "src/app/feature/foo.component.ts",
-  "line": 42,
-  "quote": "<extrait exact du code en cause>",
-  "explanation": "<1-2 phrases : pourquoi c'est un risque>",
-  "suggestion": "<remplacement concret, idéalement un snippet>"
-}
-```
-
-### Exemple
-
-```json
-{
-  "rule_id": "R-SEC-001",
-  "severity": "BLOCKER",
-  "file": "src/app/comments/comment.component.html",
-  "line": 12,
-  "quote": "<div [innerHTML]=\"comment.body\"></div>",
-  "explanation": "Le corps du commentaire provient de l'API et n'est pas sanitisé ; un attaquant peut injecter du HTML/JS.",
-  "suggestion": "Utiliser l'interpolation `{{ comment.body }}` ou passer par `DomSanitizer.sanitize(SecurityContext.HTML, comment.body)`."
-}
-```
-
-### Résumé markdown attendu
-
-```markdown
-## Résumé sécurité
-- 🔴 BLOCKER : 2
-- 🟠 MAJOR : 1
-- 🟡 MINOR : 0
-- 🔵 INFO : 0
-
-## Décision
-BLOCK / APPROVE_WITH_CHANGES / APPROVE
-
-## Détails
-1. [BLOCKER] R-SEC-001 — src/app/comments/comment.component.html:12 — ...
-2. [BLOCKER] R-SEC-014 — angular.json:34 — ...
-3. [MAJOR] R-SEC-019 — src/app/core/global-error-handler.ts:18 — ...
-```
+- Une entrée par occurrence ; toujours citer le code exact (`snippet`) : il est vérifié contre le fichier.
+- N'utiliser que des `ruleId` présents dans ce fichier (ou `R-PROJ-*` pour les règles projet).
+- Une règle qui ne s'applique pas à ce projet (version, SSR absent…) ne produit aucun finding.

@@ -14,4 +14,4 @@ jobs:
         with:
           node-version: 22
       - name: Validate registry manifest with forgent
-        run: npx --yes forgent@0.3.0 validate-registry --registry .
+        run: npx --yes forgent@1.0.0 validate-registry --registry .

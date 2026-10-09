@@ -216,14 +216,14 @@ this.liveAnnouncer.announce('Saved', 'polite');
 - **Pattern à flag** : composant de dialogue custom sans `cdkTrapFocus`, sans `MatDialog`, et sans logique de restauration de focus.
 - **Exemple ❌** :
 ```html
-<div class="modal" *ngIf="open">
+<div class="modal"> <!-- dans un @if (open()) { … } -->
   <h2>Confirm</h2>
   <button (click)="open = false">Close</button>
 </div>
 ```
 - **Exemple ✅** :
 ```html
-<div class="modal" *ngIf="open" cdkTrapFocus cdkTrapFocusAutoCapture>
+<div class="modal" cdkTrapFocus cdkTrapFocusAutoCapture> <!-- dans un @if (open()) { … } -->
   <h2 #title tabindex="-1">Confirm</h2>
   <button (click)="close()">Close</button>
 </div>
@@ -244,6 +244,15 @@ this.liveAnnouncer.announce('Saved', 'polite');
 <input id="email" type="email" />
 ```
 - **Source** : https://angular.dev/best-practices/a11y
+
+### R-A11Y-014 — Alternative textuelle des images
+
+- **Sévérité** : 🟠 MAJOR (absente) · 🟡 MINOR (présente mais inutile)
+- **Quoi vérifier** : toute `<img>` a un `alt`. Une image informative a un `alt` qui dit ce qu'elle apporte ; une image décorative a `alt=""`. Un `alt` générique (`"image"`, `"Card image"`, nom de fichier) ne vaut guère mieux qu'un `alt` absent.
+- **Pattern à flag** : `<img` sans `alt` / `[alt]` / `[attr.alt]` ; `alt` identique sur des images différentes d'une liste.
+- **Exemple ❌** : `<img [src]="card.image" alt="Card image">`
+- **Exemple ✅** : `<img [ngSrc]="card.image" width="320" height="480" [alt]="card.name + ', ' + card.hp + ' points de vie'">`
+- **Source** : <https://angular.dev/best-practices/a11y> · WCAG 1.1.1
 
 ---
 
@@ -428,6 +437,8 @@ submit() {
 - **Source** : https://angular.dev/best-practices/error-handling
 
 ### R-ERR-009 — Pas de `console.log/error` résiduels en production
+
+> **v2 — alias** : doublon de `R-ARCH-022`. Toujours rapporter sous `R-ARCH-022`.
 - **Sévérité** : 🟡 MINOR
 - **Quoi vérifier** : les `console.log`, `console.debug`, `console.warn` de debug ne doivent pas atterrir en production. Utiliser un service de logging (qui peut router vers `console` en dev et vers un backend en prod) et conserver les `console.error` uniquement à des points d'entrée dédiés.
 - **Pattern à flag** : `console.log(...)` dans le code applicatif livré, `console.error` dispersé hors d'un service de logging ou d'un `ErrorHandler`.
@@ -502,6 +513,7 @@ Accessibilité :
 - [ ] R-A11Y-011 — Angular Material / `@angular/cdk/a11y`
 - [ ] R-A11Y-012 — Piégeage de focus dans les modales
 - [ ] R-A11Y-013 — Labels associés à tous les contrôles
+- [ ] R-A11Y-014 — `alt` utile sur chaque image
 
 Gestion d'erreurs :
 - [ ] R-ERR-001 — `try/catch` ou `catchError` au callsite
@@ -518,36 +530,10 @@ Gestion d'erreurs :
 
 ---
 
-## Format des findings que doit produire l'agent reviewer
+## Format de sortie
 
-Chaque finding doit suivre le schéma JSON ci-dessous. L'agent peut produire un tableau de findings, ou les rendre en markdown avec les mêmes champs.
+Le format des findings est défini **une seule fois**, dans [`REVIEWER_PROMPT.md`](REVIEWER_PROMPT.md) (champs `ruleId`, `severity`, `domain`, `file`, `line`, `snippet`, `message`, `suggestion`, `source`, `evidence`). Ne pas en inventer un autre ici : `scripts/findings.mjs merge` rejette tout finding qui ne respecte pas ce contrat.
 
-```json
-{
-  "ruleId": "R-A11Y-001",
-  "severity": "BLOCKER",
-  "file": "src/app/profile/profile.html",
-  "line": 42,
-  "quote": "<button aria-label=\"{{ saveLabel }}\">Save</button>",
-  "explanation": "Attribut ARIA dynamique défini comme attribut HTML interpolé au lieu d'un binding [attr.aria-label]. Le binding ne sera pas mis à jour correctement et le libellé peut rester vide au premier rendu.",
-  "suggestion": "Remplacer par <button [attr.aria-label]=\"saveLabel\">Save</button>.",
-  "source": "https://angular.dev/best-practices/a11y"
-}
-```
-
-Rendu markdown équivalent :
-
-```md
-- **[R-A11Y-001 · BLOCKER]** `src/app/profile/profile.html:42`
-  > `<button aria-label="{{ saveLabel }}">Save</button>`
-  ARIA dynamique en attribut HTML interpolé. Utiliser `[attr.aria-label]="saveLabel"`.
-  Source : https://angular.dev/best-practices/a11y
-```
-
-Règles de rendu :
-- Toujours citer le **`ruleId`** et la **sévérité** (`BLOCKER` / `MAJOR` / `MINOR` / `INFO`).
-- Toujours fournir **fichier + ligne** (ou plage `start-end` pour des blocs).
-- La citation (`quote`) doit être le code exact, sans reformatage.
-- La `suggestion` doit être actionnable (diff minimal ou ligne corrigée).
-- Regrouper les findings par sévérité décroissante en sortie.
-- Si une règle ne déclenche aucun finding, ne rien émettre — pas de "RAS" par règle.
+- Une entrée par occurrence ; toujours citer le code exact (`snippet`) : il est vérifié contre le fichier.
+- N'utiliser que des `ruleId` présents dans ce fichier (ou `R-PROJ-*` pour les règles projet).
+- Une règle qui ne s'applique pas à ce projet (version, SSR absent…) ne produit aucun finding.

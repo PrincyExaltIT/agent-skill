@@ -1,48 +1,197 @@
 {
   "$schema": "https://raw.githubusercontent.com/PrincyExaltIT/forgent/main/schema/registry.schema.json",
   "name": "agent-skill",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "homepage": "https://github.com/PrincyExaltIT/agent-skill",
   "items": [
     {
       "name": "angular-review",
-      "version": "0.2.1",
-      "description": "Multi-reviewer Angular code audit (security, architecture, performance, a11y/errors, optional project-compliance) on the current branch or a specified diff, with optional empirical DOM validation via the Playwright MCP server. Project-compliance prefix is read dynamically from the rule_prefix frontmatter of PROJECT_COMPLIANCE_REVIEW.md (default R-PROJ).",
-      "tags": ["angular", "code-review", "quality", "playwright"],
+      "version": "2.1.0",
+      "description": "Senior-level review of Angular changes — a branch, a PR/MR, staged files or a commit range — against modern Angular (17 to 22) practice: signals, control flow, change detection, RxJS, DI, security, accessibility, performance and tests. Scripts scope the diff, scan it and compute the verdict; domain reviewers judge the rest; output is a French REVIEW.md plus a findings.json that follow-up skills and CI consume. Use when asked to review, audit or check Angular code, a pull or merge request before merge, or whether a change is good Angular.",
+      "tags": [
+        "angular",
+        "code-review",
+        "quality",
+        "agent-skills",
+        "ci"
+      ],
       "files": [
-        { "path": "SKILL.md", "type": "skill:main", "sha256": "d095f575d3add6cccb319cde11e4f3429b9fe78a58bffbbe5c6d05aa88a265c9" },
-        { "path": "ORCHESTRATION.md", "type": "skill:doc", "sha256": "a5c7c407520f4ab70286c6e0f7f17935767014dd163b04ff95387c3f15838a72" },
-        { "path": "angular-review.codex.md", "type": "skill:codex", "sha256": "807c1dd13d8f64979239684acab09e6a8cdaf66bc7729d8f9ee0cce46fe0028b" },
-        { "path": "angular-review.prompt.md", "type": "skill:copilot", "sha256": "9047da1f9e2a6717682570ac18a757d3949965ee3c0569c239713db4ef0c8319" },
-        { "path": "examples/subagent-output.json", "type": "skill:example", "sha256": "288e5773c2962b5af358608ec18ba847edb0ca3eca75fc19c3ffc164d1f25a72" },
-        { "path": "examples/subagent-prompt.md", "type": "skill:example", "sha256": "cb9bef0547819ac4e5d951f869ab4ebb71be362398a34a37373ede2b9e8fb3d4" },
-        { "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md", "type": "skill:reference", "sha256": "a15bde216960dec7805d283b80d8557ec0ce35f4227dcceebed305ff2f575c6a" },
-        { "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md", "type": "skill:reference", "sha256": "ad15a354881bd0510f2f8acdc71bdbbbe5ee409ce9d88af5d67b86b832eaaf22" },
-        { "path": "references/PERFORMANCE_REVIEW.md", "type": "skill:reference", "sha256": "d479ac07d03318df3a38de886b5d5b8f18dfb058c5472f1ca157a8940b6a551a" },
-        { "path": "references/PROJECT_COMPLIANCE_REVIEW.md", "type": "skill:reference", "sha256": "40fd00faf30f1fca828b08f4fcb209c7db5c0ce25a4cd36651dbf92dd283450e" },
-        { "path": "references/SECURITY_REVIEW.md", "type": "skill:reference", "sha256": "600c61db080db894fa606ad0ccddf1fd3c7939473e5f1b233a3e6d76c42368ea" },
-        { "path": "templates/REPORT.md", "type": "skill:template", "sha256": "d79767d70df30178db4479a0d488f01ee2a20befe3008280ab084ae896a3e85a" }
+        {
+          "path": "SKILL.md",
+          "type": "skill:main",
+          "sha256": "b71ce6f67f2b9e07c4d98f3085b99f8f22dee3937d560bf7f6366e654c56eab9"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "e6374054ae8249bba7185ee2dc91ce37b3809fb92b7dc1cd56ce23d03f9cae12"
+        },
+        {
+          "path": "assets/findings.schema.json",
+          "sha256": "2f3da6cc29fb0c3768cc13488276d289b98fd8e09fb736fb1b5bd8b8f2d7f6f2"
+        },
+        {
+          "path": "assets/report-template.md",
+          "type": "skill:template",
+          "sha256": "caeb7ddc5ab3af31bbe6b198ed1f4f0c4690710a92444a3071f5e2ff702a4988"
+        },
+        {
+          "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "155426ea642e7219f30617b44d99d90cf06719c80cb0fcdf17d78392f399915a"
+        },
+        {
+          "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "51da9e70382abc588250135f9305e4ae4c95378a3ffb6b4f80dedd75b8db2076"
+        },
+        {
+          "path": "references/EMPIRICAL_VALIDATION.md",
+          "type": "skill:reference",
+          "sha256": "40b16245932de923c76a138e61949fc7dff901c571f44ffde968cd65e2b89548"
+        },
+        {
+          "path": "references/PERFORMANCE_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "48af8e583af3d2f0d27bcfdb134b612ed326d402dace063b33ee4f10873ccd79"
+        },
+        {
+          "path": "references/PROJECT_COMPLIANCE_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "a698252a4e60dcb20dbb8e2b3f2c4c1d8e83d4c5aebc09460a8a202309103e27"
+        },
+        {
+          "path": "references/REACTIVITY_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "09be7964ab3ce8c0a0535817c388e119cdf0c01c19ffac5fe28c43942f09040f"
+        },
+        {
+          "path": "references/REVIEWER_PROMPT.md",
+          "type": "skill:reference",
+          "sha256": "0cee40f6f45a25f6db1a8420df3d2b3089810d17951e9ac1afca69d020185819"
+        },
+        {
+          "path": "references/SECURITY_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "50b08aaa606724ba20cf37c4d534907f60e4e459d9efb41d883887284ec6d377"
+        },
+        {
+          "path": "references/TESTING_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "22fc3ccd817492b1286f179378815a8534eb0994da8f0b49b7d672873479e032"
+        },
+        {
+          "path": "references/VERSION_GATES.md",
+          "type": "skill:reference",
+          "sha256": "43a0e323377be02fb50d72f604416adfd6764bc79f1b0610f2ea67cb1c64b809"
+        },
+        {
+          "path": "scripts/findings.mjs",
+          "sha256": "211583ceb9e8c7a356ae6766efa6cd96110bf823744994929b974d8ebc4a230c"
+        },
+        {
+          "path": "scripts/lib/formats.mjs",
+          "sha256": "4286eafbbdae533f8dc178e88a6d7b2a5f77b3b9ad2f6b3cc6c61348deaf18e0"
+        },
+        {
+          "path": "scripts/lib/project.mjs",
+          "sha256": "445ac18e54bf9b24717c43e9e0a1c4507d9c7d26450bd884821e049456afad69"
+        },
+        {
+          "path": "scripts/lib/rules.mjs",
+          "sha256": "9201c69c8fd4cd51ef72b949ef7dc6134c53858d2e800eedde42fc3f5cb3e6b6"
+        },
+        {
+          "path": "scripts/lib/source.mjs",
+          "sha256": "9ce0031a37bc3e0f3880e4c6ea3699fd5b17291327c191c073c3bd5ab756fc78"
+        },
+        {
+          "path": "scripts/scan.mjs",
+          "sha256": "c4598d4adb5c8959f755965628a5aa20e2d716ced43b9e739caea2d07b3304f6"
+        },
+        {
+          "path": "scripts/scope.mjs",
+          "sha256": "6daf25efde675a726b96f9ccb39d096415990d0a08da84eb006964bbb66242cc"
+        }
       ]
     },
     {
       "name": "angular-review-kata-rendering-events",
       "version": "0.2.1",
       "description": "Variant of angular-review pre-wired for the R-KATA Rendering Events brief: embeds R-KATA-001..013 rules (positioning time-to-pixels, overlap, responsiveness) plus the KATA_LAYOUT_ORACLE.md (formulas, tolerances, DOM measurement procedure). Evidence-based: Step 6 Playwright DOM validation is mandatory for APPROVE.",
-      "tags": ["angular", "code-review", "quality", "playwright", "kata", "evidence-based"],
+      "tags": [
+        "angular",
+        "code-review",
+        "quality",
+        "playwright",
+        "kata",
+        "evidence-based"
+      ],
       "files": [
-        { "path": "SKILL.md", "type": "skill:main", "sha256": "5c5f3ec49f78925733ff2828012f7d8663b46efbbbef795093be837813d5f3e8" },
-        { "path": "ORCHESTRATION.md", "type": "skill:doc", "sha256": "a232f20530ed9e83b92a974a9073b3a3cb64f641702938ac4d240e7acd98441b" },
-        { "path": "angular-review-kata-rendering-events.codex.md", "type": "skill:codex", "sha256": "62a249f3b71a095f716daac7203455d09ac4e0b933e3789415e17e678c8d4e6f" },
-        { "path": "angular-review-kata-rendering-events.prompt.md", "type": "skill:copilot", "sha256": "9e3a7796935d7dad440dd216be480f437a9d16faddd8627b301e953e27eeeef8" },
-        { "path": "examples/subagent-output.json", "type": "skill:example", "sha256": "511d467d44b57a25d78a1cf5fb652947bbb62450d6beaabe0df0785d0fb9a4cb" },
-        { "path": "examples/subagent-prompt.md", "type": "skill:example", "sha256": "5da98603f1ab5c763d55b19dfaf35a706494572a7ee4dcb49c66971416e4c7c9" },
-        { "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md", "type": "skill:reference", "sha256": "a15bde216960dec7805d283b80d8557ec0ce35f4227dcceebed305ff2f575c6a" },
-        { "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md", "type": "skill:reference", "sha256": "ad15a354881bd0510f2f8acdc71bdbbbe5ee409ce9d88af5d67b86b832eaaf22" },
-        { "path": "references/KATA_LAYOUT_ORACLE.md", "type": "skill:reference", "sha256": "2e9d3f7eae6cd1709de39796fcfbea54b8515a1cc3a398f0e4c527cb307b8a1d" },
-        { "path": "references/PERFORMANCE_REVIEW.md", "type": "skill:reference", "sha256": "d479ac07d03318df3a38de886b5d5b8f18dfb058c5472f1ca157a8940b6a551a" },
-        { "path": "references/PROJECT_COMPLIANCE_REVIEW.md", "type": "skill:reference", "sha256": "afad5aeb05fe918ccb6013d068afac21a18a3b3469b3b81c0d5e129b427abdab" },
-        { "path": "references/SECURITY_REVIEW.md", "type": "skill:reference", "sha256": "600c61db080db894fa606ad0ccddf1fd3c7939473e5f1b233a3e6d76c42368ea" },
-        { "path": "templates/REPORT.md", "type": "skill:template", "sha256": "9c289f36031db506bd6cb7c865218a8f5b6dd24323c7ddc51a582eb3a897fd2a" }
+        {
+          "path": "SKILL.md",
+          "type": "skill:main",
+          "sha256": "5c5f3ec49f78925733ff2828012f7d8663b46efbbbef795093be837813d5f3e8"
+        },
+        {
+          "path": "ORCHESTRATION.md",
+          "type": "skill:doc",
+          "sha256": "a232f20530ed9e83b92a974a9073b3a3cb64f641702938ac4d240e7acd98441b"
+        },
+        {
+          "path": "angular-review-kata-rendering-events.codex.md",
+          "type": "skill:codex",
+          "sha256": "62a249f3b71a095f716daac7203455d09ac4e0b933e3789415e17e678c8d4e6f"
+        },
+        {
+          "path": "angular-review-kata-rendering-events.prompt.md",
+          "type": "skill:copilot",
+          "sha256": "9e3a7796935d7dad440dd216be480f437a9d16faddd8627b301e953e27eeeef8"
+        },
+        {
+          "path": "examples/subagent-output.json",
+          "type": "skill:example",
+          "sha256": "511d467d44b57a25d78a1cf5fb652947bbb62450d6beaabe0df0785d0fb9a4cb"
+        },
+        {
+          "path": "examples/subagent-prompt.md",
+          "type": "skill:example",
+          "sha256": "5da98603f1ab5c763d55b19dfaf35a706494572a7ee4dcb49c66971416e4c7c9"
+        },
+        {
+          "path": "references/A11Y_AND_ERROR_HANDLING_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "a15bde216960dec7805d283b80d8557ec0ce35f4227dcceebed305ff2f575c6a"
+        },
+        {
+          "path": "references/ARCHITECTURE_CLEAN_CODE_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "ad15a354881bd0510f2f8acdc71bdbbbe5ee409ce9d88af5d67b86b832eaaf22"
+        },
+        {
+          "path": "references/KATA_LAYOUT_ORACLE.md",
+          "type": "skill:reference",
+          "sha256": "2e9d3f7eae6cd1709de39796fcfbea54b8515a1cc3a398f0e4c527cb307b8a1d"
+        },
+        {
+          "path": "references/PERFORMANCE_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "d479ac07d03318df3a38de886b5d5b8f18dfb058c5472f1ca157a8940b6a551a"
+        },
+        {
+          "path": "references/PROJECT_COMPLIANCE_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "afad5aeb05fe918ccb6013d068afac21a18a3b3469b3b81c0d5e129b427abdab"
+        },
+        {
+          "path": "references/SECURITY_REVIEW.md",
+          "type": "skill:reference",
+          "sha256": "600c61db080db894fa606ad0ccddf1fd3c7939473e5f1b233a3e6d76c42368ea"
+        },
+        {
+          "path": "templates/REPORT.md",
+          "type": "skill:template",
+          "sha256": "9c289f36031db506bd6cb7c865218a8f5b6dd24323c7ddc51a582eb3a897fd2a"
+        }
       ]
     }
   ]
