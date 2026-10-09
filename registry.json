@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/PrincyExaltIT/forgent/master/schema/registry.schema.json",
   "name": "agent-skill",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "homepage": "https://github.com/PrincyExaltIT/agent-skill",
   "items": [
     {
@@ -191,6 +191,117 @@
           "path": "templates/REPORT.md",
           "type": "skill:template",
           "sha256": "9c289f36031db506bd6cb7c865218a8f5b6dd24323c7ddc51a582eb3a897fd2a"
+        }
+      ]
+    },
+    {
+      "name": "review-fix",
+      "version": "1.0.0",
+      "description": "Fix the findings of an angular-review report one at a time — smallest safe change, a check after each, status recorded in .review/findings.json and a log in .review/FIXES.md. Use when the user asks to fix, address or apply review findings, to \"corriger la review\", or to clear the blockers before merge.",
+      "tags": [
+        "angular",
+        "code-review",
+        "agent-skills"
+      ],
+      "files": [
+        {
+          "path": "SKILL.md",
+          "type": "skill:main",
+          "sha256": "d054b05fbc448bc2df86f39f145e7d2f68e74aa215c95d7b9806177811fcb3b8"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "type": "skill:config",
+          "sha256": "0841126ce38cafd7bd468adb28b18f1768c3f2d79cdd01d8b09a4f4b237232cd"
+        },
+        {
+          "path": "scripts/fixes.mjs",
+          "type": "skill:script",
+          "sha256": "d94c49ae204d214d7c2a166c51fd3bc42611021d920661b6f92d118a15e9c4af"
+        }
+      ]
+    },
+    {
+      "name": "pr-handoff",
+      "version": "1.0.0",
+      "description": "Write the pull/merge request description and a handoff note for the next session from the facts of the branch — commits, diff, angular-review verdict, review-fix log. Run it by name when a branch is ready to open or to hand over.",
+      "tags": [
+        "angular",
+        "code-review",
+        "agent-skills"
+      ],
+      "files": [
+        {
+          "path": "SKILL.md",
+          "type": "skill:main",
+          "sha256": "f44a9ff73212b62f0ba88a63152fd839ae5349f518d5852bc0390584742ece13"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "type": "skill:config",
+          "sha256": "d0864aca0f5ff29517d5dc28678dbfb994b9dd27da577b54e279c4d3ce89ffbc"
+        },
+        {
+          "path": "assets/handoff-template.md",
+          "type": "skill:template",
+          "sha256": "86ec4a28577105b097d5f82be3c1c931c851e07b18f595626505c9ce09298754"
+        },
+        {
+          "path": "assets/pr-template.md",
+          "type": "skill:template",
+          "sha256": "673d92a271e9c8c3a82568947fd88b94d9650f742751ac0edc568fa33a3c1f69"
+        },
+        {
+          "path": "scripts/gather.mjs",
+          "type": "skill:script",
+          "sha256": "4c4a8a05da9cf54794dfd1b9fd96e86aeae7ef0f2ab182756660953243b254e9"
+        }
+      ]
+    },
+    {
+      "name": "skill-smith",
+      "version": "1.0.0",
+      "description": "Create or improve an Agent Skill the team can share — interview, scaffold, description that triggers, workflow with completion criteria, scripts for the exact parts, references for the branches, evals, validation against the open standard, install for every harness. Use when asked to create, write, refactor, review or port a skill, a SKILL.md, or to turn a repeated prompt or procedure into a skill.",
+      "tags": [
+        "angular",
+        "code-review",
+        "agent-skills"
+      ],
+      "files": [
+        {
+          "path": "SKILL.md",
+          "type": "skill:main",
+          "sha256": "a3a32b1701e7785f307f0898e0a5206aa41c725e74125977c2387b6fc1d61393"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "type": "skill:config",
+          "sha256": "333a075245e806c630dc0b2f88c51ff0201ca01b4f331d35d69b6e670d83ae69"
+        },
+        {
+          "path": "references/anatomy.md",
+          "type": "skill:reference",
+          "sha256": "9b36542c3ed576e1da5dae961c26ea8636808d247b0623a3322a9db4dc09fa96"
+        },
+        {
+          "path": "references/descriptions.md",
+          "type": "skill:reference",
+          "sha256": "17fc3c1d70abdf8f940be1b035c0c33cbb8df563eed5d2c8d581efa0db020cc6"
+        },
+        {
+          "path": "references/portability.md",
+          "type": "skill:reference",
+          "sha256": "9b0d59a24dbb91f53690cb72ea729550c6b3ca6dd40c50fd9e99ce32dd7711b0"
+        },
+        {
+          "path": "scripts/new-skill.mjs",
+          "type": "skill:script",
+          "sha256": "ef72cf047f59e2a5f907a64915ec013f62937e938663853bb734394fbb04fdff"
+        },
+        {
+          "path": "scripts/validate.mjs",
+          "type": "skill:script",
+          "sha256": "b5adbefdd6ab4e28efb70c3c9f097171fc72dac6d4ffe01970c784a078345690"
         }
       ]
     }
