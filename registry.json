@@ -1,13 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/PrincyExaltIT/forgent/master/schema/registry.schema.json",
   "name": "agent-skill",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "homepage": "https://github.com/PrincyExaltIT/agent-skill",
   "items": [
     {
       "name": "angular-review",
-      "version": "2.1.0",
-      "description": "Senior-level review of Angular changes — a branch, a PR/MR, staged files or a commit range — against modern Angular (17 to 22) practice: signals, control flow, change detection, RxJS, DI, security, accessibility, performance and tests. Scripts scope the diff, scan it and compute the verdict; domain reviewers judge the rest; output is a French REVIEW.md plus a findings.json that follow-up skills and CI consume. Use when asked to review, audit or check Angular code, a pull or merge request before merge, or whether a change is good Angular.",
+      "version": "2.1.1",
+      "description": "Senior-level review of Angular changes — a branch, a PR/MR, staged files or a commit range — against modern Angular (17 to 22) practice, from signals, control flow and change detection to RxJS, DI, security, accessibility, performance and tests. Scripts scope the diff, scan it and compute the verdict; domain reviewers judge the rest; output is a French REVIEW.md plus a findings.json that follow-up skills and CI consume. Use when asked to review, audit or check Angular code, a pull or merge request before merge, or whether a change is good Angular.",
       "tags": [
         "angular",
         "code-review",
@@ -19,7 +19,7 @@
         {
           "path": "SKILL.md",
           "type": "skill:main",
-          "sha256": "b71ce6f67f2b9e07c4d98f3085b99f8f22dee3937d560bf7f6366e654c56eab9"
+          "sha256": "cb1147fea68633d11d8127cf2daa142c2573b3d56b8d5c984f1287d08ab09e1e"
         },
         {
           "path": "agents/openai.yaml",
@@ -180,7 +180,7 @@
     },
     {
       "name": "skill-smith",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Create or improve an Agent Skill the team can share — interview, scaffold, description that triggers, workflow with completion criteria, scripts for the exact parts, references for the branches, evals, validation against the open standard, install for every harness. Use when asked to create, write, refactor, review or port a skill, a SKILL.md, or to turn a repeated prompt or procedure into a skill.",
       "tags": [
         "angular",
@@ -191,7 +191,7 @@
         {
           "path": "SKILL.md",
           "type": "skill:main",
-          "sha256": "a3a32b1701e7785f307f0898e0a5206aa41c725e74125977c2387b6fc1d61393"
+          "sha256": "560cd86fe46ddcadb25d1ac42ebda39e31866536efe381698b50d0536808063f"
         },
         {
           "path": "agents/openai.yaml",
@@ -221,7 +221,7 @@
         {
           "path": "scripts/validate.mjs",
           "type": "skill:script",
-          "sha256": "b5adbefdd6ab4e28efb70c3c9f097171fc72dac6d4ffe01970c784a078345690"
+          "sha256": "74b822407f0897787a513daf0d5a965b0609ba28af574fae60944d66c3977d55"
         }
       ]
     }

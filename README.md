@@ -33,10 +33,10 @@ See [`forgent`'s README](https://github.com/PrincyExaltIT/forgent#readme) for fl
 
 | Skill | Version | What it does |
 |---|---|---|
-| [`angular-review`](./skills/angular-review) | 2.1.0 | Review of Angular changes (17 to 22) — a branch, a PR/MR, staged files or a commit range. Scripts scope the diff, scan it (44 mechanical detectors) and compute the verdict; domain reviewers (security, architecture, performance, reactivity, tests, accessibility and errors, plus your project rules) judge the rest, then every finding is verified before it is kept. Output: `.review/REVIEW.md` (French) and `.review/findings.json` (+ SARIF) for follow-up skills and CI. Read-only. |
+| [`angular-review`](./skills/angular-review) | 2.1.1 | Review of Angular changes (17 to 22) — a branch, a PR/MR, staged files or a commit range. Scripts scope the diff, scan it (44 mechanical detectors) and compute the verdict; domain reviewers (security, architecture, performance, reactivity, tests, accessibility and errors, plus your project rules) judge the rest, then every finding is verified before it is kept. Output: `.review/REVIEW.md` (French) and `.review/findings.json` (+ SARIF) for follow-up skills and CI. Read-only. |
 | [`review-fix`](./skills/review-fix) | 1.0.0 | Applies the findings of `.review/findings.json` one at a time, with build and tests after each, one commit per finding; stops on red. Invoke it by hand after `angular-review`. |
 | [`pr-handoff`](./skills/pr-handoff) | 1.0.0 | Writes the PR/MR description and a hand-off note from the commits and the review. Manual invocation (`disable-model-invocation`, honoured by Claude Code, Cursor and Copilot; Codex: `agents/openai.yaml`). |
-| [`skill-smith`](./skills/skill-smith) | 1.0.0 | Creates and validates Agent Skills: `new-skill.mjs` scaffolds a folder, `validate.mjs` checks it against the standard. |
+| [`skill-smith`](./skills/skill-smith) | 1.1.0 | Creates and validates Agent Skills: `new-skill.mjs` scaffolds a folder, `validate.mjs` checks it against the standard (and, since 1.1.0, rejects frontmatter values that strict YAML parsers refuse). |
 
 > **angular-review 1.x** (0.2.1, `ORCHESTRATION.md` and per-provider files) and its « Rendering Events » kata variant are archived under the git tag [`angular-review-v1`](https://github.com/PrincyExaltIT/agent-skill/tree/angular-review-v1). To install it anyway: `npx forgent add --registry https://raw.githubusercontent.com/PrincyExaltIT/agent-skill/angular-review-v1 --provider claude angular-review`.
 
